@@ -33,7 +33,7 @@ public class Task {
     @ColumnInfo
     private boolean completed;
 
-    @ColumnInfo
+    @ColumnInfo(name = "completed_date_time")
     private DateTime completedDateTime;
 
     @ColumnInfo
@@ -42,13 +42,13 @@ public class Task {
     @ColumnInfo
     private boolean trashed;
 
-    @ColumnInfo
+    @ColumnInfo(name = "trashed_date_time")
     private DateTime trashedDateTime;
 
-    @ColumnInfo
-    private String listId;
+    @ColumnInfo(name = "book_id")
+    private String bookId;
 
-    @ColumnInfo
+    @ColumnInfo(name = "reminder_id")
     private String reminderId;
 
     @Ignore
@@ -58,7 +58,7 @@ public class Task {
     private boolean reminderPassed;
 
     @Ignore
-    private String listName;
+    private String bookName;
 
     @Ignore
     private int color;
@@ -134,20 +134,20 @@ public class Task {
         this.trashedDateTime = trashedDateTime;
     }
 
-    public String getListId() {
-        return listId;
+    public String getBookId() {
+        return bookId;
     }
 
-    public void setListId(String listId) {
-        this.listId = listId;
+    public void setBookId(String bookId) {
+        this.bookId = bookId;
     }
 
-    public String getListName() {
-        return listName;
+    public String getBookName() {
+        return bookName;
     }
 
-    public void setListName(String listName) {
-        this.listName = listName;
+    public void setBookName(String bookName) {
+        this.bookName = bookName;
     }
 
     public int getColor() {
@@ -197,7 +197,7 @@ public class Task {
             builder.append(completed, t.completed);
             builder.append(trashed, t.trashed);
             builder.append(priority, t.priority);
-            builder.append(listId, t.listId);
+            builder.append(bookId, t.bookId);
             builder.append(reminderId, t.reminderId);
             return contentEquals(id, t.id);
         }

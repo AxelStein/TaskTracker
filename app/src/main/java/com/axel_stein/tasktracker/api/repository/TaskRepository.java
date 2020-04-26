@@ -8,7 +8,6 @@ import androidx.core.os.ConfigurationCompat;
 import androidx.paging.DataSource;
 
 import com.axel_stein.tasktracker.R;
-import com.axel_stein.tasktracker.api.model.Book;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.api.room.dao.BookDao;
@@ -174,32 +173,13 @@ public class TaskRepository {
         return mDao.queryTrashed().map(new TaskFunction());
     }
 
-    public Flowable<List<Task>> query(Book list) {
-        checkRules(notNull(list));
-        return query(list.getId());
+    public DataSource.Factory<Integer, Task> queryBookDataSource(String bookId) {
+        checkRules(
+                notEmptyString(bookId),
+                listExists(mBookDao, bookId)
+        );
+        return mDao.queryBook(bookId).map(new TaskFunction());
     }
-
-    public Flowable<List<Task>> query(final String listId) {
-        return flowable(() -> {
-            checkRules(
-                    notEmptyString(listId),
-                    listExists(mBookDao, listId)
-            );
-            return sort(mDao.queryList(listId));
-        });
-    }
-
-    /*
-    public Flowable<List<Task>> queryCompleted() {
-        return flowable(() -> mDao.queryCompleted());
-    }
-    */
-
-    /*
-    public Flowable<List<Task>> queryTrashed() {
-        return flowable(() -> mDao.queryTrashed());
-    }
-    */
 
     public Flowable<List<Task>> search(final String query) {
         return flowable(() -> {
@@ -234,8 +214,8 @@ public class TaskRepository {
                 task.setDateTimeFormatted(simpleDateFormat.format(dateTime.toDate()).toLowerCase());
             }
 
-            String listId = task.getListId();
-            task.setListName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
+            String listId = task.getBookId();
+            task.setBookName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
             task.setColor(isEmpty(listId) ? 0 : mBookDao.getColor(listId));
         }
         return list;
@@ -268,8 +248,8 @@ public class TaskRepository {
                 task.setDateTimeFormatted(simpleDateFormat.format(dateTime.toDate()).toLowerCase());
             }
 
-            String listId = task.getListId();
-            task.setListName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
+            String listId = task.getBookId();
+            task.setBookName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
             task.setColor(isEmpty(listId) ? 0 : mBookDao.getColor(listId));
             return task;
         }

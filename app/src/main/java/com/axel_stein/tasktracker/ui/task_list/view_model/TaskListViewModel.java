@@ -32,11 +32,10 @@ public abstract class TaskListViewModel extends ViewModel {
     }
 
     public void onTaskClick(Task task) {
-
+        mRepository.setTrashed(task.getId(), !task.isTrashed()).subscribe();
     }
 
     public void onTaskLongClick(Task task) {
-
     }
 
     public void setCompleted(Task task) {

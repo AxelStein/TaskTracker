@@ -1,8 +1,8 @@
 package com.axel_stein.tasktracker.api.repository;
 
 import com.axel_stein.tasktracker.api.exception.FolderNotFoundException;
-import com.axel_stein.tasktracker.api.exception.ListClosedException;
-import com.axel_stein.tasktracker.api.exception.ListNotFoundException;
+import com.axel_stein.tasktracker.api.exception.BookClosedException;
+import com.axel_stein.tasktracker.api.exception.BookNotFoundException;
 import com.axel_stein.tasktracker.api.exception.ReminderNotFoundException;
 import com.axel_stein.tasktracker.api.exception.TaskNotFoundException;
 import com.axel_stein.tasktracker.api.room.dao.BookDao;
@@ -102,7 +102,7 @@ class RepositoryUtil {
 
         @Override
         public void thr() {
-            throw new ListNotFoundException();
+            throw new BookNotFoundException();
         }
     }
 
@@ -115,7 +115,7 @@ class RepositoryUtil {
 
         @Override
         public void thr() {
-            throw new ListClosedException();
+            throw new BookClosedException();
         }
     }
 

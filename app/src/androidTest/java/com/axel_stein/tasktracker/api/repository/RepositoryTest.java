@@ -61,11 +61,11 @@ public class RepositoryTest extends AndroidTest {
         return task;
     }
 
-    protected Book insertTestList() {
-        return insertTestList("test");
+    protected Book insertTestBook() {
+        return insertTestBook("test");
     }
 
-    protected Book insertTestList(@NonNull String name) {
+    protected Book insertTestBook(@NonNull String name) {
         Book list = new Book();
         list.setName(name);
         mBookRepository.insert(list).subscribe();

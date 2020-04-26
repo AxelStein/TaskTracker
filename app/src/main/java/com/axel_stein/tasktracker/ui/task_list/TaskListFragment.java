@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.axel_stein.tasktracker.R;
+import com.axel_stein.tasktracker.ui.task_list.view_model.BookViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.CompletedViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.InboxViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.TaskListViewModel;
@@ -22,9 +23,11 @@ import com.axel_stein.tasktracker.utils.ViewUtil;
 
 public class TaskListFragment extends Fragment {
     public static final String BUNDLE_VIEW_MODEL = "BUNDLE_VIEW_MODEL";
+    public static final String BUNDLE_BOOK_ID = "BUNDLE_BOOK_ID";
     public static final int VIEW_MODEL_INBOX = 0;
     public static final int VIEW_MODEL_COMPLETED = 1;
     public static final int VIEW_MODEL_TRASHED = 2;
+    public static final int VIEW_MODEL_BOOK = 3;
 
     private TaskListViewModel mViewModel;
     private TaskListAdapter mListAdapter;
@@ -50,6 +53,12 @@ public class TaskListFragment extends Fragment {
                 case VIEW_MODEL_TRASHED:
                     mViewModel = provider.get(TrashedViewModel.class);
                     break;
+
+                case VIEW_MODEL_BOOK:
+                    BookViewModel model = provider.get(BookViewModel.class);
+                    model.setBookId(args.getString(BUNDLE_BOOK_ID));
+                    mViewModel = model;
+                    break;
             }
         }
     }
@@ -59,7 +68,7 @@ public class TaskListFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         mListAdapter = new TaskListAdapter();
         mListAdapter.setOnItemClickListener(task -> {
-
+            mViewModel.onTaskClick(task);
         });
         mListAdapter.setOnItemLongClickListener(task -> {
 
@@ -69,7 +78,6 @@ public class TaskListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         mTextEmpty = view.findViewById(R.id.text_empty);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(mListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return view;

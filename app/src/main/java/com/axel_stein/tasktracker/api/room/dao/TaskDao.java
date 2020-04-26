@@ -23,25 +23,25 @@ public interface TaskDao {
     @Query("UPDATE tasks SET description = :description WHERE id = :id")
     void setDescription(String id, String description);
 
-    @Query("UPDATE tasks SET listId = :listId WHERE id = :id")
+    @Query("UPDATE tasks SET book_id = :listId WHERE id = :id")
     void setListId(String id, String listId);
 
     @Query("UPDATE tasks SET completed = :completed WHERE id = :id")
     void setCompleted(String id, boolean completed);
 
-    @Query("UPDATE tasks SET completedDateTime = :dateTime WHERE id = :id")
+    @Query("UPDATE tasks SET completed_date_time = :dateTime WHERE id = :id")
     void setCompletedDateTime(String id, DateTime dateTime);
 
     @Query("UPDATE tasks SET trashed = :trashed WHERE id = :id")
     void setTrashed(String id, boolean trashed);
 
-    @Query("UPDATE tasks SET trashedDateTime = :dateTime WHERE id = :id")
+    @Query("UPDATE tasks SET trashed_date_time = :dateTime WHERE id = :id")
     void setTrashedDateTime(String id, DateTime dateTime);
 
     @Query("UPDATE tasks SET priority = :priority WHERE id = :id")
     void setPriority(String id, int priority);
 
-    @Query("UPDATE tasks SET reminderId = :reminderId WHERE id = :taskId")
+    @Query("UPDATE tasks SET reminder_id = :reminderId WHERE id = :taskId")
     void setReminderId(String taskId, String reminderId);
 
     @Query("DELETE FROM tasks WHERE id = :id")
@@ -50,10 +50,10 @@ public interface TaskDao {
     @Query("DELETE FROM tasks")
     void delete();
 
-    @Query("DELETE FROM tasks WHERE listId = :listId")
+    @Query("DELETE FROM tasks WHERE book_id = :listId")
     void deleteList(String listId);
 
-    @Query("UPDATE tasks SET reminderId = NULL WHERE reminderId = :reminderId")
+    @Query("UPDATE tasks SET reminder_id = NULL WHERE reminder_id = :reminderId")
     void clearReminder(String reminderId);
 
     @Query("SELECT * FROM tasks WHERE id = :id")
@@ -62,17 +62,17 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks")
     List<Task> query();
 
-    @Query("SELECT * FROM tasks WHERE (listId IS NULL OR listId = '') AND trashed = 0 AND completed = 0 " +
-            "ORDER BY priority DESC, title ASC, reminderId DESC")
+    @Query("SELECT * FROM tasks WHERE (book_id IS NULL OR book_id = '') AND trashed = 0 AND completed = 0 " +
+            "ORDER BY priority DESC, title ASC, reminder_id DESC")
     DataSource.Factory<Integer, Task> queryInbox();
 
-    @Query("SELECT * FROM tasks WHERE listId = :listId AND trashed = 0 ORDER BY priority DESC, title ASC, reminderId DESC")
-    List<Task> queryList(String listId);
+    @Query("SELECT * FROM tasks WHERE book_id = :bookId AND trashed = 0 AND completed = 0 ORDER BY priority DESC, title ASC, reminder_id DESC")
+    DataSource.Factory<Integer, Task> queryBook(String bookId);
 
-    @Query("SELECT * FROM tasks WHERE completed = 1 AND trashed = 0 ORDER BY completedDateTime DESC")
+    @Query("SELECT * FROM tasks WHERE completed = 1 AND trashed = 0 ORDER BY completed_date_time DESC")
     DataSource.Factory<Integer, Task> queryCompleted();
 
-    @Query("SELECT * FROM tasks WHERE trashed = 1 ORDER BY trashedDateTime DESC")
+    @Query("SELECT * FROM tasks WHERE trashed = 1 ORDER BY trashed_date_time DESC")
     DataSource.Factory<Integer, Task> queryTrashed();
 
     @Query("SELECT * FROM tasks WHERE title LIKE :query AND trashed = 0")

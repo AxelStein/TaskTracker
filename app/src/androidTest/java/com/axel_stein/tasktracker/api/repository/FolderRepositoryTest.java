@@ -74,12 +74,12 @@ public class FolderRepositoryTest extends RepositoryTest {
 
     @Test
     public void testDelete_list() {
-        Book list = insertTestList("list 2");
+        Book list = insertTestBook("list 2");
         Folder folder = insertTestFolder("test 2");
         mBookRepository.setFolder(list.getId(), folder.getId()).test().assertComplete();
         mBookRepository.get(list.getId()).test().assertValue(entity -> notEmpty(entity.getFolderId()));
 
-        Book listDelete = insertTestList("list 1");
+        Book listDelete = insertTestBook("list 1");
         Folder folderDelete = insertTestFolder("test 1");
         mBookRepository.setFolder(listDelete.getId(), folderDelete.getId()).test().assertComplete();
         mBookRepository.get(listDelete.getId()).test().assertValue(entity -> notEmpty(entity.getFolderId()));
