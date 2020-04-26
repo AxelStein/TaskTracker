@@ -5,11 +5,12 @@ import androidx.room.Room;
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.reminder.AndroidNotificationTray;
 import com.axel_stein.tasktracker.api.reminder.ReminderScheduler;
-import com.axel_stein.tasktracker.api.repository.BookRepository;
+import com.axel_stein.tasktracker.api.repository.TaskListRepository;
 import com.axel_stein.tasktracker.api.repository.FolderRepository;
 import com.axel_stein.tasktracker.api.repository.ReminderRepository;
 import com.axel_stein.tasktracker.api.repository.TaskRepository;
 import com.axel_stein.tasktracker.api.room.AppDatabase;
+import com.axel_stein.tasktracker.ui.IntentActionFactory;
 
 import javax.inject.Singleton;
 
@@ -44,8 +45,8 @@ public class AppModule {
 
     @Provides
     @Singleton
-    BookRepository provideListRepository(AppDatabase db) {
-        return new BookRepository(db.getListDao(), db.getFolderDao(), db.getTaskDao());
+    TaskListRepository provideListRepository(AppDatabase db) {
+        return new TaskListRepository(db.getListDao(), db.getFolderDao(), db.getTaskDao());
     }
 
     @Provides
@@ -68,6 +69,11 @@ public class AppModule {
     @Provides
     AndroidNotificationTray provideAndroidNotificationTray(App app) {
         return new AndroidNotificationTray(app);
+    }
+
+    @Provides
+    IntentActionFactory provideIntentActionFactory(App app) {
+        return new IntentActionFactory(app);
     }
 
 }

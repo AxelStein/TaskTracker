@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 
 import com.axel_stein.tasktracker.AndroidTest;
-import com.axel_stein.tasktracker.api.model.Book;
+import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.model.Folder;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.model.Task;
@@ -18,7 +18,7 @@ import org.junit.Before;
 public class RepositoryTest extends AndroidTest {
     protected AppDatabase mDatabase;
     protected TaskRepository mTaskRepository;
-    protected BookRepository mBookRepository;
+    protected TaskListRepository mTaskListRepository;
     protected FolderRepository mFolderRepository;
     protected ReminderRepository mReminderRepository;
 
@@ -28,7 +28,7 @@ public class RepositoryTest extends AndroidTest {
         ReminderScheduler scheduler = new ReminderScheduler(mContext);
 
         mTaskRepository = new TaskRepository(mContext, mDatabase.getTaskDao(), mDatabase.getListDao(), mDatabase.getReminderDao());
-        mBookRepository = new BookRepository(mDatabase.getListDao(), mDatabase.getFolderDao(), mDatabase.getTaskDao());
+        mTaskListRepository = new TaskListRepository(mDatabase.getListDao(), mDatabase.getFolderDao(), mDatabase.getTaskDao());
         mFolderRepository = new FolderRepository(mDatabase.getFolderDao(), mDatabase.getListDao());
         mReminderRepository = new ReminderRepository(mDatabase.getReminderDao(), mDatabase.getTaskDao(), scheduler);
     }
@@ -61,14 +61,14 @@ public class RepositoryTest extends AndroidTest {
         return task;
     }
 
-    protected Book insertTestList() {
+    protected TaskList insertTestList() {
         return insertTestList("test");
     }
 
-    protected Book insertTestList(@NonNull String name) {
-        Book list = new Book();
+    protected TaskList insertTestList(@NonNull String name) {
+        TaskList list = new TaskList();
         list.setName(name);
-        mBookRepository.insert(list).subscribe();
+        mTaskListRepository.insert(list).subscribe();
         return list;
     }
 

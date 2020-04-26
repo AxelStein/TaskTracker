@@ -3,7 +3,7 @@ package com.axel_stein.tasktracker.api.repository;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.axel_stein.tasktracker.api.exception.FolderNotFoundException;
-import com.axel_stein.tasktracker.api.model.Book;
+import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.model.Folder;
 
 import org.junit.Test;
@@ -74,15 +74,15 @@ public class FolderRepositoryTest extends RepositoryTest {
 
     @Test
     public void testDelete_list() {
-        Book list = insertTestList("list 2");
+        TaskList list = insertTestList("list 2");
         Folder folder = insertTestFolder("test 2");
-        mBookRepository.setFolder(list.getId(), folder.getId()).test().assertComplete();
-        mBookRepository.get(list.getId()).test().assertValue(entity -> notEmpty(entity.getFolderId()));
+        mTaskListRepository.setFolder(list.getId(), folder.getId()).test().assertComplete();
+        mTaskListRepository.get(list.getId()).test().assertValue(entity -> notEmpty(entity.getFolderId()));
 
-        Book listDelete = insertTestList("list 1");
+        TaskList listDelete = insertTestList("list 1");
         Folder folderDelete = insertTestFolder("test 1");
-        mBookRepository.setFolder(listDelete.getId(), folderDelete.getId()).test().assertComplete();
-        mBookRepository.get(listDelete.getId()).test().assertValue(entity -> notEmpty(entity.getFolderId()));
+        mTaskListRepository.setFolder(listDelete.getId(), folderDelete.getId()).test().assertComplete();
+        mTaskListRepository.get(listDelete.getId()).test().assertValue(entity -> notEmpty(entity.getFolderId()));
     }
 
 }

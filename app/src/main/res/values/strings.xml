@@ -11,4 +11,15 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="action_inbox">Inbox</string>
     <string name="empty_list">Empty list</string>
+    <string name="action_search">Search</string>
+    <string name="hint_title">Title</string>
+    <string name="hint_description">Description</string>
+    <string name="description_clear">Clear description</string>
+
+    <string-array name="priority">
+        <item>None</item>
+        <item>Low</item>
+        <item>Middle</item>
+        <item>High</item>
+    </string-array>
 </resources>

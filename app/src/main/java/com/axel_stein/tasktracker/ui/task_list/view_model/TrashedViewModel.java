@@ -4,7 +4,8 @@ import androidx.paging.DataSource;
 
 import com.axel_stein.tasktracker.api.model.Task;
 
-public class TrashedViewModel extends TaskListViewModel {
+public class TrashedViewModel extends TasksViewModel {
+
     @Override
     protected DataSource.Factory<Integer, Task> getDataSource() {
         return mRepository.queryTrashedDataSource();

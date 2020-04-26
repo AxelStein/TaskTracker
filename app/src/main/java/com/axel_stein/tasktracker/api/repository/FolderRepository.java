@@ -1,7 +1,7 @@
 package com.axel_stein.tasktracker.api.repository;
 
 import com.axel_stein.tasktracker.api.model.Folder;
-import com.axel_stein.tasktracker.api.room.dao.BookDao;
+import com.axel_stein.tasktracker.api.room.dao.TaskListDao;
 import com.axel_stein.tasktracker.api.room.dao.FolderDao;
 
 import java.util.UUID;
@@ -19,11 +19,11 @@ import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 
 public class FolderRepository {
     private FolderDao mDao;
-    private BookDao mBookDao;
+    private TaskListDao mListDao;
 
-    public FolderRepository(FolderDao dao, BookDao bookDao) {
+    public FolderRepository(FolderDao dao, TaskListDao listDao) {
         mDao = dao;
-        mBookDao = bookDao;
+        mListDao = listDao;
     }
 
     public Completable insert(final Folder folder) {
@@ -62,7 +62,7 @@ public class FolderRepository {
                     folderExists(mDao, id)
             );
             mDao.delete(id);
-            mBookDao.clearFolder(id);
+            mListDao.clearFolder(id);
         });
     }
 
