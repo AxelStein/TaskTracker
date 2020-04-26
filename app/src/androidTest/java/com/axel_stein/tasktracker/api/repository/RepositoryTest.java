@@ -1,0 +1,86 @@
+package com.axel_stein.tasktracker.api.repository;
+
+import androidx.annotation.NonNull;
+import androidx.room.Room;
+
+import com.axel_stein.tasktracker.AndroidTest;
+import com.axel_stein.tasktracker.api.model.Folder;
+import com.axel_stein.tasktracker.api.model.ListEntity;
+import com.axel_stein.tasktracker.api.model.Reminder;
+import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.api.reminder.ReminderScheduler;
+import com.axel_stein.tasktracker.api.room.AppDatabase;
+
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+
+public class RepositoryTest extends AndroidTest {
+    protected AppDatabase mDatabase;
+    protected TaskRepository mTaskRepository;
+    protected ListRepository mListRepository;
+    protected FolderRepository mFolderRepository;
+    protected ReminderRepository mReminderRepository;
+
+    @Before
+    public void initDb() {
+        mDatabase = Room.inMemoryDatabaseBuilder(mContext, AppDatabase.class).build();
+        ReminderScheduler scheduler = new ReminderScheduler(mContext);
+
+        mTaskRepository = new TaskRepository(mContext, mDatabase.getTaskDao(), mDatabase.getListDao(), mDatabase.getReminderDao());
+        mListRepository = new ListRepository(mDatabase.getListDao(), mDatabase.getFolderDao(), mDatabase.getTaskDao());
+        mFolderRepository = new FolderRepository(mDatabase.getFolderDao(), mDatabase.getListDao());
+        mReminderRepository = new ReminderRepository(mDatabase.getReminderDao(), mDatabase.getTaskDao(), scheduler);
+    }
+
+    @After
+    public void closeDb() {
+        mDatabase.close();
+    }
+
+    protected Reminder insertTestReminder() {
+        return insertTestReminder(new DateTime());
+    }
+
+    protected Reminder insertTestReminder(@NonNull DateTime dateTime) {
+        Reminder reminder = new Reminder();
+        reminder.setDateTime(dateTime);
+        reminder.setTaskId(insertTestTask().getId());
+        mReminderRepository.insert(reminder).subscribe();
+        return reminder;
+    }
+
+    protected Task insertTestTask() {
+        return insertTestTask("test");
+    }
+
+    protected Task insertTestTask(String name) {
+        Task task = new Task();
+        task.setTitle(name);
+        mTaskRepository.insert(task).subscribe();
+        return task;
+    }
+
+    protected ListEntity insertTestList() {
+        return insertTestList("test");
+    }
+
+    protected ListEntity insertTestList(@NonNull String name) {
+        ListEntity list = new ListEntity();
+        list.setName(name);
+        mListRepository.insert(list).subscribe();
+        return list;
+    }
+
+    protected Folder insertTestFolder() {
+        return insertTestFolder("test");
+    }
+
+    protected Folder insertTestFolder(@NonNull String name) {
+        Folder folder = new Folder();
+        folder.setName(name);
+        mFolderRepository.insert(folder).subscribe();
+        return folder;
+    }
+
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/fragment_inbox"
+            android:checked="true"
+            android:icon="@drawable/ic_inbox_white_24dp"
+            android:title="Inbox" />
+
+        <item
+            android:id="@+id/fragment_completed"
+            android:icon="@drawable/ic_check_circle_outline_24px"
+            android:title="Completed" />
+
+        <item
+            android:id="@+id/fragment_trash"
+            android:icon="@drawable/ic_delete_outline_24px"
+            android:title="Trash" />
+
+    </group>
+
+</menu>
