@@ -8,10 +8,10 @@ import androidx.core.os.ConfigurationCompat;
 import androidx.paging.DataSource;
 
 import com.axel_stein.tasktracker.R;
-import com.axel_stein.tasktracker.api.model.ListEntity;
+import com.axel_stein.tasktracker.api.model.Book;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.model.Task;
-import com.axel_stein.tasktracker.api.room.dao.ListDao;
+import com.axel_stein.tasktracker.api.room.dao.BookDao;
 import com.axel_stein.tasktracker.api.room.dao.ReminderDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskDao;
 import com.axel_stein.tasktracker.utils.LogUtil;
@@ -44,15 +44,15 @@ public class TaskRepository {
     private final String ACTION_INBOX;
 
     private TaskDao mDao;
-    private ListDao mListDao;
+    private BookDao mBookDao;
     private ReminderDao mReminderDao;
     private Locale mLocale;
     private boolean m24HFormat;
 
-    public TaskRepository(Context context, TaskDao dao, ListDao listDao, ReminderDao reminderDao) {
+    public TaskRepository(Context context, TaskDao dao, BookDao bookDao, ReminderDao reminderDao) {
         ACTION_INBOX = context.getString(R.string.action_inbox);
         mDao = requireNonNull(dao);
-        mListDao = requireNonNull(listDao);
+        mBookDao = requireNonNull(bookDao);
         mReminderDao = requireNonNull(reminderDao);
         m24HFormat = DateFormat.is24HourFormat(requireNonNull(context));
         mLocale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
@@ -91,7 +91,7 @@ public class TaskRepository {
             checkRules(
                     notEmptyString(id, listId),
                     taskExists(mDao, id),
-                    listExists(mListDao, listId)
+                    listExists(mBookDao, listId)
             );
             mDao.setListId(id, listId);
         });
@@ -174,7 +174,7 @@ public class TaskRepository {
         return mDao.queryTrashed().map(new TaskFunction());
     }
 
-    public Flowable<List<Task>> query(ListEntity list) {
+    public Flowable<List<Task>> query(Book list) {
         checkRules(notNull(list));
         return query(list.getId());
     }
@@ -183,7 +183,7 @@ public class TaskRepository {
         return flowable(() -> {
             checkRules(
                     notEmptyString(listId),
-                    listExists(mListDao, listId)
+                    listExists(mBookDao, listId)
             );
             return sort(mDao.queryList(listId));
         });
@@ -235,8 +235,8 @@ public class TaskRepository {
             }
 
             String listId = task.getListId();
-            task.setListName(isEmpty(listId) ? ACTION_INBOX : mListDao.getName(listId));
-            task.setColor(isEmpty(listId) ? 0 : mListDao.getColor(listId));
+            task.setListName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
+            task.setColor(isEmpty(listId) ? 0 : mBookDao.getColor(listId));
         }
         return list;
     }
@@ -269,8 +269,8 @@ public class TaskRepository {
             }
 
             String listId = task.getListId();
-            task.setListName(isEmpty(listId) ? ACTION_INBOX : mListDao.getName(listId));
-            task.setColor(isEmpty(listId) ? 0 : mListDao.getColor(listId));
+            task.setListName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
+            task.setColor(isEmpty(listId) ? 0 : mBookDao.getColor(listId));
             return task;
         }
     }

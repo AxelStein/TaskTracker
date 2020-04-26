@@ -1,8 +1,8 @@
 package com.axel_stein.tasktracker.api.repository;
 
-import com.axel_stein.tasktracker.api.model.ListEntity;
+import com.axel_stein.tasktracker.api.model.Book;
+import com.axel_stein.tasktracker.api.room.dao.BookDao;
 import com.axel_stein.tasktracker.api.room.dao.FolderDao;
-import com.axel_stein.tasktracker.api.room.dao.ListDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskDao;
 import com.axel_stein.tasktracker.utils.LogUtil;
 
@@ -25,18 +25,18 @@ import static com.axel_stein.tasktracker.utils.ArgsUtil.notNull;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
-public class ListRepository {
-    private ListDao mDao;
+public class BookRepository {
+    private BookDao mDao;
     private FolderDao mFolderDao;
     private TaskDao mTaskDao;
 
-    public ListRepository(ListDao dao, FolderDao folderDao, TaskDao taskDao) {
+    public BookRepository(BookDao dao, FolderDao folderDao, TaskDao taskDao) {
         mDao = Objects.requireNonNull(dao);
         mFolderDao = Objects.requireNonNull(folderDao);
         mTaskDao = Objects.requireNonNull(taskDao);
     }
 
-    public Completable insert(final ListEntity list) {
+    public Completable insert(final Book list) {
         return completable(() -> {
             checkRules(notNull(list));
             checkRules(notEmptyString(list.getName()));
@@ -91,13 +91,13 @@ public class ListRepository {
         });
     }
 
-    public Flowable<ListEntity> get(final String id) {
+    public Flowable<Book> get(final String id) {
         return flowable(() -> {
             checkRules(
                     notEmptyString(id),
                     listExists(mDao, id)
             );
-            ListEntity list = mDao.get(id);
+            Book list = mDao.get(id);
             String folderId = list.getFolderId();
             if (notEmpty(folderId)) {
                 if (checkRulesSilent(folderExists(mFolderDao, folderId))) {
@@ -111,10 +111,10 @@ public class ListRepository {
         });
     }
 
-    public Flowable<List<ListEntity>> query() {
+    public Flowable<List<Book>> query() {
         return flowable(() -> {
-            List<ListEntity> lists = mDao.query();
-            for (ListEntity l : lists) {
+            List<Book> lists = mDao.query();
+            for (Book l : lists) {
                 l.setFolderName(mFolderDao.getName(l.getFolderId()));
             }
             return lists;

@@ -5,8 +5,8 @@ import com.axel_stein.tasktracker.api.exception.ListClosedException;
 import com.axel_stein.tasktracker.api.exception.ListNotFoundException;
 import com.axel_stein.tasktracker.api.exception.ReminderNotFoundException;
 import com.axel_stein.tasktracker.api.exception.TaskNotFoundException;
+import com.axel_stein.tasktracker.api.room.dao.BookDao;
 import com.axel_stein.tasktracker.api.room.dao.FolderDao;
-import com.axel_stein.tasktracker.api.room.dao.ListDao;
 import com.axel_stein.tasktracker.api.room.dao.ReminderDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskDao;
 import com.axel_stein.tasktracker.utils.ArgsUtil.CheckRule;
@@ -32,7 +32,7 @@ class RepositoryUtil {
         };
     }
 
-    static CheckRule listExists(final ListDao dao, final String id) {
+    static CheckRule listExists(final BookDao dao, final String id) {
         return new ListCheckRule() {
             @Override
             public boolean check() {
@@ -41,7 +41,7 @@ class RepositoryUtil {
         };
     }
 
-    static CheckRule listNotClosed(final ListDao dao, final String id) {
+    static CheckRule listNotClosed(final BookDao dao, final String id) {
         return new ListNotClosedCheckRule() {
             @Override
             public boolean check() {

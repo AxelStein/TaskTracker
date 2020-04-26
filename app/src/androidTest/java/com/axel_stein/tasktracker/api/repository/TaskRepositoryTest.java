@@ -3,7 +3,7 @@ package com.axel_stein.tasktracker.api.repository;
 import com.axel_stein.tasktracker.api.exception.ListNotFoundException;
 import com.axel_stein.tasktracker.api.exception.ReminderNotFoundException;
 import com.axel_stein.tasktracker.api.exception.TaskNotFoundException;
-import com.axel_stein.tasktracker.api.model.ListEntity;
+import com.axel_stein.tasktracker.api.model.Book;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.model.Task;
 
@@ -58,14 +58,14 @@ public class TaskRepositoryTest extends RepositoryTest {
     @Test
     public void testSetListId() {
         Task task = insertTestTask();
-        ListEntity list = insertTestList();
+        Book list = insertTestList();
         mTaskRepository.setListId(task.getId(), list.getId()).test().assertComplete();
     }
 
     @Test
     public void testSetListId_args() {
         Task task = insertTestTask();
-        ListEntity list = insertTestList();
+        Book list = insertTestList();
         mTaskRepository.setListId("", "listId").test().assertError(IllegalArgumentException.class);
         mTaskRepository.setListId("taskId", "").test().assertError(IllegalArgumentException.class);
         mTaskRepository.setListId("taskId", list.getId()).test().assertError(TaskNotFoundException.class);
@@ -214,7 +214,7 @@ public class TaskRepositoryTest extends RepositoryTest {
         ArrayList<Task> trashedTasks;
         ArrayList<Task> completedTasks;
         ArrayList<Task> inListTasks;
-        ListEntity list;
+        Book list;
 
         TestTaskList() {
             trashedTasks = new ArrayList<>();
@@ -262,7 +262,7 @@ public class TaskRepositoryTest extends RepositoryTest {
             return inListTasks;
         }
 
-        ListEntity getList() {
+        Book getList() {
             return list;
         }
     }

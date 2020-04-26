@@ -8,8 +8,8 @@ import androidx.room.PrimaryKey;
 
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
-@Entity(tableName = "lists", indices = {@Index(value = {"name"}, unique = true)})
-public class ListEntity {
+@Entity(tableName = "books", indices = {@Index(value = {"name"}, unique = true)})
+public class Book {
 
     @PrimaryKey
     @NonNull
@@ -21,7 +21,7 @@ public class ListEntity {
     @ColumnInfo
     private int color;
 
-    @ColumnInfo
+    @ColumnInfo(name = "folder_id")
     private String folderId;
 
     private String folderName;
