@@ -33,4 +33,7 @@ public class TextUtil {
         return a == null && b == null;
     }
 
+    public static int length(CharSequence text) {
+        return text == null ? 0 : text.length();
+    }
 }

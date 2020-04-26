@@ -23,16 +23,16 @@ public interface ReminderDao {
     @Query("SELECT * FROM reminders WHERE id = :id")
     Reminder get(String id);
 
-    @Query("DELETE FROM reminders WHERE id = :reminderId")
-    void delete(String reminderId);
+    @Query("DELETE FROM reminders WHERE id = :id")
+    void delete(String id);
 
-    @Query("DELETE FROM reminders WHERE taskId = :taskId")
+    @Query("DELETE FROM reminders WHERE task_id = :taskId")
     void deleteTask(String taskId);
 
-    @Query("SELECT * FROM reminders ORDER BY dateTime")
+    @Query("SELECT * FROM reminders ORDER BY date_time")
     List<Reminder> query();
 
-    @Query("SELECT * FROM reminders WHERE dateTime = :dateTime ORDER BY dateTime")
+    @Query("SELECT * FROM reminders WHERE date_time = :dateTime ORDER BY date_time")
     List<Reminder> queryDateTime(DateTime dateTime);
 
 }

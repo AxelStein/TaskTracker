@@ -22,6 +22,12 @@ public class LogUtil {
         }
     }
 
+    public static void debug(Class c, String method, String msg) {
+        if (DEBUG) {
+            Log.v("TAG", c.getSimpleName() + "::" + method + " = " + msg);
+        }
+    }
+
     public static void error(Object ...objects) {
         if (DEBUG && objects != null) {
             for (Object o : objects) {

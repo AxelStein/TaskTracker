@@ -9,4 +9,14 @@
     <color name="text_color_reminder_passed_dark">#F44336</color>
     <color name="nav_item_background">#0D009688</color>
     <color name="nav_item_text">#009688</color>
+    <color name="priority_none">#de000000</color>
+    <color name="priority_low">#4CAF50</color>
+    <color name="priority_middle">#FFC107</color>
+    <color name="priority_high">#F44336</color>
+    <integer-array name="priority_colors">
+        <item>@color/priority_none</item>
+        <item>@color/priority_low</item>
+        <item>@color/priority_middle</item>
+        <item>@color/priority_high</item>
+    </integer-array>
 </resources>

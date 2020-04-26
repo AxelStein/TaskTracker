@@ -33,7 +33,7 @@ public class Task {
     @ColumnInfo
     private boolean completed;
 
-    @ColumnInfo
+    @ColumnInfo(name = "completed_date_time")
     private DateTime completedDateTime;
 
     @ColumnInfo
@@ -42,13 +42,13 @@ public class Task {
     @ColumnInfo
     private boolean trashed;
 
-    @ColumnInfo
+    @ColumnInfo(name = "trashed_date_time")
     private DateTime trashedDateTime;
 
-    @ColumnInfo
+    @ColumnInfo(name = "list_id")
     private String listId;
 
-    @ColumnInfo
+    @ColumnInfo(name = "reminder_id")
     private String reminderId;
 
     @Ignore

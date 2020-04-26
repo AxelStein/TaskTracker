@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_share"
+        android:title="Share" />
+
+    <item
+        android:id="@+id/menu_duplicate"
+        android:title="Duplicate" />
+
+    <item
+        android:id="@+id/menu_delete"
+        android:title="Delete" />
+
+    <item
+        android:id="@+id/menu_restore"
+        android:title="Restore" />
+
+</menu>

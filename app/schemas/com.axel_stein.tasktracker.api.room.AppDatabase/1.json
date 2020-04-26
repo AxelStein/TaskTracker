@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e4ee189fcc515bdd13efdb31b50e190f",
+    "identityHash": "d03ee530576bcee1f186d10a53f1c003",
     "entities": [
       {
         "tableName": "tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT, `description` TEXT, `completed` INTEGER NOT NULL, `completedDateTime` TEXT, `priority` INTEGER NOT NULL, `trashed` INTEGER NOT NULL, `trashedDateTime` TEXT, `listId` TEXT, `reminderId` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT, `description` TEXT, `completed` INTEGER NOT NULL, `completed_date_time` TEXT, `priority` INTEGER NOT NULL, `trashed` INTEGER NOT NULL, `trashed_date_time` TEXT, `list_id` TEXT, `reminder_id` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -34,7 +34,7 @@
           },
           {
             "fieldPath": "completedDateTime",
-            "columnName": "completedDateTime",
+            "columnName": "completed_date_time",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -52,19 +52,19 @@
           },
           {
             "fieldPath": "trashedDateTime",
-            "columnName": "trashedDateTime",
+            "columnName": "trashed_date_time",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "listId",
-            "columnName": "listId",
+            "columnName": "list_id",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "reminderId",
-            "columnName": "reminderId",
+            "columnName": "reminder_id",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -79,7 +79,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "books",
+        "tableName": "task_lists",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT, `color` INTEGER NOT NULL, `folder_id` TEXT, `folderName` TEXT, `closed` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
@@ -127,12 +127,12 @@
         },
         "indices": [
           {
-            "name": "index_books_name",
+            "name": "index_task_lists_name",
             "unique": true,
             "columnNames": [
               "name"
             ],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_books_name` ON `${TABLE_NAME}` (`name`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_task_lists_name` ON `${TABLE_NAME}` (`name`)"
           }
         ],
         "foreignKeys": []
@@ -174,7 +174,7 @@
       },
       {
         "tableName": "reminders",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `taskId` TEXT, `dateTime` TEXT, `repeatMode` INTEGER NOT NULL, `repeatCount` INTEGER NOT NULL, `repeatEndDate` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `task_id` TEXT, `date_time` TEXT, `repeat_mode` INTEGER NOT NULL, `repeat_count` INTEGER NOT NULL, `repeat_end_date` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -184,31 +184,31 @@
           },
           {
             "fieldPath": "taskId",
-            "columnName": "taskId",
+            "columnName": "task_id",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "dateTime",
-            "columnName": "dateTime",
+            "columnName": "date_time",
             "affinity": "TEXT",
             "notNull": false
           },
           {
             "fieldPath": "repeatMode",
-            "columnName": "repeatMode",
+            "columnName": "repeat_mode",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "repeatCount",
-            "columnName": "repeatCount",
+            "columnName": "repeat_count",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "repeatEndDate",
-            "columnName": "repeatEndDate",
+            "columnName": "repeat_end_date",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -226,7 +226,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e4ee189fcc515bdd13efdb31b50e190f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd03ee530576bcee1f186d10a53f1c003')"
     ]
   }
 }

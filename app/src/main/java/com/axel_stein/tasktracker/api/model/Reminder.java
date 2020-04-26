@@ -22,19 +22,19 @@ public class Reminder {
     @NonNull
     private String id = "";
 
-    @ColumnInfo
+    @ColumnInfo(name = "task_id")
     private String taskId;
 
-    @ColumnInfo
+    @ColumnInfo(name = "date_time")
     private DateTime dateTime;
 
-    @ColumnInfo
+    @ColumnInfo(name = "repeat_mode")
     private int repeatMode;
 
-    @ColumnInfo
+    @ColumnInfo(name = "repeat_count")
     private int repeatCount;
 
-    @ColumnInfo
+    @ColumnInfo(name = "repeat_end_date")
     private LocalDate repeatEndDate;
 
     @NonNull

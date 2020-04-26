@@ -15,6 +15,22 @@
         <!--<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>-->
     </style>
 
+    <style name="AppThemeDark" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/window_background_dark</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="colorPrimary">#222E3C</item>
+        <item name="colorPrimaryDark">#19222D</item>
+        <item name="colorAccent">#62A8E3</item>
+        <item name="reminderTint">@color/reminder_tint_dark</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeBackground">?attr/colorPrimary</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_clear_24px</item>
+        <item name="actionModeStyle">@style/AppThemeDark.ActionMode</item>
+        <item name="colorControlNormal">@color/text_color_primary_dark</item>
+        <item name="menuItemTintColor">@color/text_color_primary_dark</item>
+    </style>
+
     <!--<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />-->
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
@@ -27,5 +43,14 @@
     <style name="AppThemeDark.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
         <item name="height">48dp</item>
     </style>
+
+    <style name="AppThemeDark.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeDark.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppThemeDark.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

@@ -8,31 +8,28 @@ import androidx.core.os.ConfigurationCompat;
 import androidx.paging.DataSource;
 
 import com.axel_stein.tasktracker.R;
-import com.axel_stein.tasktracker.api.model.Book;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.model.Task;
-import com.axel_stein.tasktracker.api.room.dao.BookDao;
 import com.axel_stein.tasktracker.api.room.dao.ReminderDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskDao;
-import com.axel_stein.tasktracker.utils.LogUtil;
+import com.axel_stein.tasktracker.api.room.dao.TaskListDao;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
 
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.completable;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.flowable;
-import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.listExists;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskExists;
+import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskListExists;
+import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskNotTrashed;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.checkRules;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.inRange;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.notEmptyString;
@@ -44,33 +41,44 @@ public class TaskRepository {
     private final String ACTION_INBOX;
 
     private TaskDao mDao;
-    private BookDao mBookDao;
+    private TaskListDao mListDao;
     private ReminderDao mReminderDao;
     private Locale mLocale;
     private boolean m24HFormat;
 
-    public TaskRepository(Context context, TaskDao dao, BookDao bookDao, ReminderDao reminderDao) {
+    public TaskRepository(Context context, TaskDao dao, TaskListDao listDao, ReminderDao reminderDao) {
         ACTION_INBOX = context.getString(R.string.action_inbox);
         mDao = requireNonNull(dao);
-        mBookDao = requireNonNull(bookDao);
+        mListDao = requireNonNull(listDao);
         mReminderDao = requireNonNull(reminderDao);
         m24HFormat = DateFormat.is24HourFormat(requireNonNull(context));
         mLocale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
     }
 
     public Completable insert(final Task task) {
-        return Completable.fromAction(() -> {
+        return completable(() -> {
             checkRules(notNull(task));
             if (isEmpty(task.getId())) task.setId(UUID.randomUUID().toString());
             mDao.insert(task);
-        }).subscribeOn(Schedulers.io());
+        });
+    }
+
+    public Completable update(final Task task) {
+        return completable(() -> {
+            checkRules(
+                    notNull(task),
+                    notEmptyString(task.getId())
+            );
+            mDao.update(task);
+        });
     }
 
     public Completable setTitle(final String id, final String title) {
         return completable(() -> {
             checkRules(
                     notEmptyString(id),
-                    taskExists(mDao, id)
+                    taskExists(mDao, id),
+                    taskNotTrashed(mDao, id)
             );
             mDao.setTitle(id, title);
         });
@@ -80,21 +88,28 @@ public class TaskRepository {
         return completable(() -> {
             checkRules(
                     notEmptyString(id),
-                    taskExists(mDao, id)
+                    taskExists(mDao, id),
+                    taskNotTrashed(mDao, id)
             );
             mDao.setDescription(id, description);
         });
     }
 
-    public Completable setListId(final String id, final String listId) {
+    public Completable setListId(final String id, final String bookId) {
         return completable(() -> {
             checkRules(
-                    notEmptyString(id, listId),
+                    notEmptyString(id, bookId),
                     taskExists(mDao, id),
-                    listExists(mBookDao, listId)
+                    taskNotTrashed(mDao, id),
+                    taskListExists(mListDao, bookId)
             );
-            mDao.setListId(id, listId);
+            mDao.setListId(id, bookId);
         });
+    }
+
+    public Completable toggleCompleted(Task task) {
+        checkRules(notNull(task));
+        return setCompleted(task, !task.isCompleted());
     }
 
     public Completable setCompleted(Task task, boolean completed) {
@@ -107,12 +122,23 @@ public class TaskRepository {
         return completable(() -> {
             checkRules(
                     notEmptyString(id),
-                    taskExists(mDao, id)
+                    taskExists(mDao, id),
+                    taskNotTrashed(mDao, id)
             );
             mDao.setCompleted(id, completed);
             mDao.setCompletedDateTime(id, completed ? new DateTime() : null);
-            LogUtil.debug("setCompleted id = " + id + ", completed = " + completed);
         });
+    }
+
+    public Completable toggleTrashed(Task task) {
+        checkRules(notNull(task));
+        return setTrashed(task, !task.isTrashed());
+    }
+
+    public Completable setTrashed(Task task, boolean trashed) {
+        checkRules(notNull(task));
+        task.setTrashed(trashed);
+        return setTrashed(task.getId(), trashed);
     }
 
     public Completable setTrashed(final String id, final boolean trashed) {
@@ -126,12 +152,19 @@ public class TaskRepository {
         });
     }
 
+    public Completable setPriority(Task task, int priority) {
+        checkRules(notNull(task));
+        task.setPriority(priority);
+        return setPriority(task.getId(), priority);
+    }
+
     public Completable setPriority(final String id, final int priority) {
         return completable(() -> {
             checkRules(
                     notEmptyString(id),
                     inRange(priority, Task.PRIORITY_NONE, Task.PRIORITY_HIGH),
-                    taskExists(mDao, id)
+                    taskExists(mDao, id),
+                    taskNotTrashed(mDao, id)
             );
             mDao.setPriority(id, priority);
         });
@@ -155,7 +188,7 @@ public class TaskRepository {
                     taskExists(mDao, id)
             );
             return mDao.get(id);
-        });
+        }); // todo map
     }
 
     public Flowable<List<Task>> query() {
@@ -174,71 +207,14 @@ public class TaskRepository {
         return mDao.queryTrashed().map(new TaskFunction());
     }
 
-    public Flowable<List<Task>> query(Book list) {
-        checkRules(notNull(list));
-        return query(list.getId());
+    public DataSource.Factory<Integer, Task> queryTaskListDataSource(String listId) {
+        checkRules(notEmptyString(listId)); // todo listExists(mBookDao, bookId)
+        return mDao.queryList(listId).map(new TaskFunction());
     }
 
-    public Flowable<List<Task>> query(final String listId) {
-        return flowable(() -> {
-            checkRules(
-                    notEmptyString(listId),
-                    listExists(mBookDao, listId)
-            );
-            return sort(mDao.queryList(listId));
-        });
-    }
-
-    /*
-    public Flowable<List<Task>> queryCompleted() {
-        return flowable(() -> mDao.queryCompleted());
-    }
-    */
-
-    /*
-    public Flowable<List<Task>> queryTrashed() {
-        return flowable(() -> mDao.queryTrashed());
-    }
-    */
-
-    public Flowable<List<Task>> search(final String query) {
-        return flowable(() -> {
-            if (isEmpty(query)) return new ArrayList<>();
-            return sort(mDao.search(query));
-        });
-    }
-
-    private List<Task> sort(List<Task> list) {
-        LocalDate today = new LocalDate();
-        for (Task task : list) {
-            if (task.hasReminder()) {
-                Reminder reminder = mReminderDao.get(task.getReminderId());
-                DateTime dateTime = reminder.getDateTime();
-                LocalDate localDate = dateTime.toLocalDate();
-                task.setReminderPassed(localDate.isBefore(today));
-
-                String pattern;
-                if (localDate.equals(today)) {
-                    if (m24HFormat) {
-                        pattern = "H:mm";
-                    } else {
-                        pattern = "h:mm aa";
-                    }
-                } else if (localDate.year().equals(today.year())) {
-                    pattern = "d MMM";
-                } else {
-                    pattern = "d MMM yyyy";
-                }
-
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, mLocale);
-                task.setDateTimeFormatted(simpleDateFormat.format(dateTime.toDate()).toLowerCase());
-            }
-
-            String listId = task.getListId();
-            task.setListName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
-            task.setColor(isEmpty(listId) ? 0 : mBookDao.getColor(listId));
-        }
-        return list;
+    public DataSource.Factory<Integer, Task> search(String query) {
+        checkRules(notEmptyString(query));
+        return mDao.search("%" + query + "%").map(new TaskFunction());
     }
 
     private class TaskFunction implements Function<Task, Task> {
@@ -269,8 +245,8 @@ public class TaskRepository {
             }
 
             String listId = task.getListId();
-            task.setListName(isEmpty(listId) ? ACTION_INBOX : mBookDao.getName(listId));
-            task.setColor(isEmpty(listId) ? 0 : mBookDao.getColor(listId));
+            task.setListName(isEmpty(listId) ? ACTION_INBOX : mListDao.getName(listId));
+            task.setColor(isEmpty(listId) ? 0 : mListDao.getColor(listId));
             return task;
         }
     }
