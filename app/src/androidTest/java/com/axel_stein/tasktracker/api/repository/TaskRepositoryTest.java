@@ -1,19 +1,23 @@
 package com.axel_stein.tasktracker.api.repository;
 
-import com.axel_stein.tasktracker.api.exception.BookNotFoundException;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.paging.DataSource;
+import androidx.paging.LivePagedListBuilder;
+import androidx.paging.PagedList;
+
 import com.axel_stein.tasktracker.api.exception.ReminderNotFoundException;
+import com.axel_stein.tasktracker.api.exception.TaskListNotFoundException;
+import com.axel_stein.tasktracker.api.exception.TaskLockedException;
 import com.axel_stein.tasktracker.api.exception.TaskNotFoundException;
-import com.axel_stein.tasktracker.api.model.Book;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.api.model.TaskList;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-
-import io.reactivex.functions.Predicate;
-
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class TaskRepositoryTest extends RepositoryTest {
@@ -38,6 +42,13 @@ public class TaskRepositoryTest extends RepositoryTest {
     }
 
     @Test
+    public void testSetTitle_locked() {
+        Task task = insertTestTask();
+        mTaskRepository.setTrashed(task.getId(), true).subscribe();
+        mTaskRepository.setTitle(task.getId(), "some text").test().assertError(TaskLockedException.class);
+    }
+
+    @Test
     public void testSetTitle_args() {
         mTaskRepository.setTitle(null, "text").test().assertError(IllegalArgumentException.class);
         mTaskRepository.setTitle("text", "text").test().assertError(TaskNotFoundException.class);
@@ -56,20 +67,36 @@ public class TaskRepositoryTest extends RepositoryTest {
     }
 
     @Test
+    public void testSetDescription_locked() {
+        Task task = insertTestTask();
+        mTaskRepository.setTrashed(task.getId(), true).subscribe();
+        mTaskRepository.setDescription(task.getId(), "some text").test().assertError(TaskLockedException.class);
+    }
+
+    @Test
     public void testSetListId() {
         Task task = insertTestTask();
-        Book list = insertTestBook();
+        TaskList list = insertTestList();
         mTaskRepository.setListId(task.getId(), list.getId()).test().assertComplete();
     }
 
     @Test
     public void testSetListId_args() {
         Task task = insertTestTask();
-        Book list = insertTestBook();
+        TaskList list = insertTestList();
         mTaskRepository.setListId("", "listId").test().assertError(IllegalArgumentException.class);
         mTaskRepository.setListId("taskId", "").test().assertError(IllegalArgumentException.class);
         mTaskRepository.setListId("taskId", list.getId()).test().assertError(TaskNotFoundException.class);
-        mTaskRepository.setListId(task.getId(), "listId").test().assertError(BookNotFoundException.class);
+        mTaskRepository.setListId(task.getId(), "listId").test().assertError(TaskListNotFoundException.class);
+    }
+
+    @Test
+    public void testSetListId_locked() {
+        Task task = insertTestTask();
+        mTaskRepository.setTrashed(task.getId(), true).subscribe();
+
+        TaskList list = insertTestList();
+        mTaskRepository.setListId(task.getId(), list.getId()).test().assertError(TaskLockedException.class);
     }
 
     @Test
@@ -95,6 +122,13 @@ public class TaskRepositoryTest extends RepositoryTest {
     }
 
     @Test
+    public void testSetCompleted_locked() {
+        Task task = insertTestTask();
+        mTaskRepository.setTrashed(task.getId(), true).subscribe();
+        mTaskRepository.setCompleted(task.getId(), true).test().assertError(TaskLockedException.class);
+    }
+
+    @Test
     public void testSetTrashed() {
         Task task = insertTestTask();
         mTaskRepository.setTrashed(task.getId(), true).test().assertComplete();
@@ -104,20 +138,10 @@ public class TaskRepositoryTest extends RepositoryTest {
     public void testSetTrashed_date() {
         Task task = insertTestTask();
         mTaskRepository.setTrashed(task.getId(), true).test().assertComplete();
-        mTaskRepository.get(task.getId()).test().assertValue(new Predicate<Task>() {
-            @Override
-            public boolean test(Task task) {
-                return task.getTrashedDateTime() != null;
-            }
-        });
+        mTaskRepository.get(task.getId()).test().assertValue(t -> t.getTrashedDateTime() != null);
 
         mTaskRepository.setTrashed(task.getId(), false).test().assertComplete();
-        mTaskRepository.get(task.getId()).test().assertValue(new Predicate<Task>() {
-            @Override
-            public boolean test(Task task) {
-                return task.getTrashedDateTime() == null;
-            }
-        });
+        mTaskRepository.get(task.getId()).test().assertValue(t -> t.getTrashedDateTime() == null);
     }
 
     @Test
@@ -139,6 +163,13 @@ public class TaskRepositoryTest extends RepositoryTest {
         mTaskRepository.setPriority(task.getId(), Task.PRIORITY_NONE - 1).test().assertError(IllegalArgumentException.class);
         mTaskRepository.setPriority(task.getId(), Task.PRIORITY_HIGH + 1).test().assertError(IllegalArgumentException.class);
         mTaskRepository.setPriority("id", Task.PRIORITY_LOW).test().assertError(TaskNotFoundException.class);
+    }
+
+    @Test
+    public void testSetPriority_locked() {
+        Task task = insertTestTask();
+        mTaskRepository.setTrashed(task.getId(), true).subscribe();
+        mTaskRepository.setPriority(task.getId(), Task.PRIORITY_LOW).test().assertError(TaskLockedException.class);
     }
 
     @Test
@@ -171,103 +202,75 @@ public class TaskRepositoryTest extends RepositoryTest {
 
     @Test
     public void testQueryInbox() {
-        /*
-        CompositeDisposable mDisposable = new CompositeDisposable();
-        mDisposable.add(mDataSource.subscribe(input -> {
-            ArrayList<Task> tasks = new ArrayList<>(input);
-            assertNotSame(tasks, taskList.getTasks());
-        }));
-        */
-        //mDataSource.test().assertValue(tasks -> tasks.size() > 0);
-        /*
-        TestTaskList taskList = new TestTaskList();
-        mTaskRepository.queryInbox().test().assertValue(taskList.getTasks());
-        */
+        Task task = insertTestTask();
+        loadPagedList(mTaskRepository.queryInboxDataSource(), tasks -> {
+            assertNotNull(tasks);
+            assertEquals(tasks.size(), 1);
+            assertEquals(task, tasks.get(0));
+        });
+    }
+
+    @Test
+    public void testSearch() {
+        insertTestTask("test 1");
+        insertTestTask("test 2");
+
+        Task task = insertTestTask();
+        loadPagedList(mTaskRepository.search("test"), tasks -> {
+            assertNotNull(tasks);
+            assertEquals(tasks.size(), 1);
+            assertEquals(task, tasks.get(0));
+        });
     }
 
     @Test
     public void testQueryList() {
-        /*
-        fixme
-        TestTaskList taskList = new TestTaskList();
-        mTaskRepository.query(taskList.getList()).test().assertValue(taskList.getInListTasks());
-        */
+        insertTestTask("test 1");
+
+        Task task = insertTestTask();
+        TaskList taskList = insertTestList();
+        mTaskRepository.setListId(task.getId(), taskList.getId()).subscribe();
+
+        loadPagedList(mTaskRepository.queryTaskListDataSource(taskList.getId()), tasks -> {
+            assertNotNull(tasks);
+            assertEquals(tasks.size(), 1);
+            assertEquals(task, tasks.get(0));
+        });
     }
 
     @Test
     public void testQueryCompleted() {
-        /*
-        fixme
-        TestTaskList taskList = new TestTaskList();
-        mTaskRepository.queryCompleted().test().assertValue(taskList.getCompletedTasks());
-        */
+        insertTestTask("test 1");
+        insertTestTask("test 2");
+
+        Task task = insertTestTask();
+        mTaskRepository.setCompleted(task, true).subscribe();
+
+        loadPagedList(mTaskRepository.queryCompletedDataSource(), tasks -> {
+            assertNotNull(tasks);
+            assertEquals(tasks.size(), 1);
+            assertEquals(task, tasks.get(0));
+        });
     }
 
     @Test
     public void testQueryTrashed() {
-        /*
-        fixme
-        TestTaskList taskList = new TestTaskList();
-        mTaskRepository.queryTrashed().test().assertValue(taskList.getTrashedTasks());
-        */
+        insertTestTask("test 1");
+        insertTestTask("test 2");
+
+        Task task = insertTestTask();
+        mTaskRepository.setTrashed(task, true).subscribe();
+
+        loadPagedList(mTaskRepository.queryTrashedDataSource(), tasks -> {
+            assertNotNull(tasks);
+            assertEquals(tasks.size(), 1);
+            assertEquals(task, tasks.get(0));
+        });
     }
 
-    private class TestTaskList {
-        ArrayList<Task> tasks;
-        ArrayList<Task> trashedTasks;
-        ArrayList<Task> completedTasks;
-        ArrayList<Task> inListTasks;
-        Book list;
-
-        TestTaskList() {
-            trashedTasks = new ArrayList<>();
-            completedTasks = new ArrayList<>();
-            inListTasks = new ArrayList<>();
-
-            tasks = new ArrayList<>();
-            for (int i = 0; i < 10; i++) {
-                tasks.add(insertTestTask("task " + i));
-            }
-
-            // do trash
-            Task trashed = tasks.get(1);
-            mTaskRepository.setTrashed(trashed.getId(), true).subscribe();
-            tasks.remove(trashed);
-            trashedTasks.add(trashed);
-
-            // do completed
-            Task completed = tasks.get(3);
-            mTaskRepository.setCompleted(completed.getId(), true).subscribe();
-            tasks.remove(completed);
-            completedTasks.add(completed);
-
-            // do list
-            list = insertTestBook();
-            Task inList = tasks.get(2);
-            mTaskRepository.setListId(inList.getId(), list.getId()).subscribe();
-            tasks.remove(inList);
-            inListTasks.add(inList);
-        }
-
-        ArrayList<Task> getTasks() {
-            return tasks;
-        }
-
-        ArrayList<Task> getTrashedTasks() {
-            return trashedTasks;
-        }
-
-        ArrayList<Task> getCompletedTasks() {
-            return completedTasks;
-        }
-
-        ArrayList<Task> getInListTasks() {
-            return inListTasks;
-        }
-
-        Book getList() {
-            return list;
-        }
+    private void loadPagedList(DataSource.Factory<Integer, Task> dataSource, Observer<? super PagedList<Task>> observer) {
+        LiveData<PagedList<Task>> taskList = new LivePagedListBuilder<>(dataSource, 50).build();
+        taskList.observeForever(observer);
     }
 
 }

@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/fragment_inbox"
-        android:name="com.axel_stein.tasktracker.ui.task_list.TaskListFragment"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
         android:label="Inbox" >
         <argument
             android:name="BUNDLE_VIEW_MODEL"
@@ -16,21 +16,45 @@
 
     <fragment
         android:id="@+id/fragment_completed"
-        android:name="com.axel_stein.tasktracker.ui.task_list.TaskListFragment"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
         android:label="Completed" >
         <argument
             android:name="BUNDLE_VIEW_MODEL"
             app:argType="integer"
             android:defaultValue="1" />
     </fragment>
+
     <fragment
         android:id="@+id/fragment_trash"
-        android:name="com.axel_stein.tasktracker.ui.task_list.TaskListFragment"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
         android:label="Trash" >
         <argument
             android:name="BUNDLE_VIEW_MODEL"
             app:argType="integer"
             android:defaultValue="2" />
     </fragment>
+
+    <fragment
+        android:id="@+id/fragment_list"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment">
+        <argument
+            android:name="BUNDLE_VIEW_MODEL"
+            app:argType="integer"
+            android:defaultValue="3" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_search"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment">
+        <argument
+            android:name="BUNDLE_VIEW_MODEL"
+            app:argType="integer"
+            android:defaultValue="4" />
+    </fragment>
+
+    <activity
+        android:id="@+id/activity_edit_task"
+        android:name="com.axel_stein.tasktracker.ui.edit_task.EditTaskActivity" />
+
 
 </navigation>

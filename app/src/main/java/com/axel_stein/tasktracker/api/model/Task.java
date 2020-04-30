@@ -45,8 +45,8 @@ public class Task {
     @ColumnInfo(name = "trashed_date_time")
     private DateTime trashedDateTime;
 
-    @ColumnInfo(name = "book_id")
-    private String bookId;
+    @ColumnInfo(name = "list_id")
+    private String listId;
 
     @ColumnInfo(name = "reminder_id")
     private String reminderId;

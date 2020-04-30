@@ -22,4 +22,17 @@
 
     </group>
 
+    <group
+        android:id="@+id/group_list"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_add_list"
+            android:icon="@drawable/ic_add_box_24px"
+            android:orderInCategory="1"
+            android:checkable="false"
+            android:title="Add list"/>
+
+    </group>
+
 </menu>

@@ -4,6 +4,7 @@ import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.axel_stein.tasktracker.api.model.Task;
 
@@ -17,13 +18,16 @@ public interface TaskDao {
     @Insert
     void insert(Task task);
 
+    @Update
+    void update(Task task);
+
     @Query("UPDATE tasks SET title = :title WHERE id = :id")
     void setTitle(String id, String title);
 
     @Query("UPDATE tasks SET description = :description WHERE id = :id")
     void setDescription(String id, String description);
 
-    @Query("UPDATE tasks SET book_id = :listId WHERE id = :id")
+    @Query("UPDATE tasks SET list_id = :listId WHERE id = :id")
     void setListId(String id, String listId);
 
     @Query("UPDATE tasks SET completed = :completed WHERE id = :id")
@@ -50,7 +54,7 @@ public interface TaskDao {
     @Query("DELETE FROM tasks")
     void delete();
 
-    @Query("DELETE FROM tasks WHERE book_id = :listId")
+    @Query("DELETE FROM tasks WHERE list_id = :listId")
     void deleteList(String listId);
 
     @Query("UPDATE tasks SET reminder_id = NULL WHERE reminder_id = :reminderId")
@@ -62,12 +66,12 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks")
     List<Task> query();
 
-    @Query("SELECT * FROM tasks WHERE (book_id IS NULL OR book_id = '') AND trashed = 0 AND completed = 0 " +
+    @Query("SELECT * FROM tasks WHERE (list_id IS NULL OR list_id = '') AND trashed = 0 AND completed = 0 " +
             "ORDER BY priority DESC, title ASC, reminder_id DESC")
     DataSource.Factory<Integer, Task> queryInbox();
 
-    @Query("SELECT * FROM tasks WHERE book_id = :bookId AND trashed = 0 AND completed = 0 ORDER BY priority DESC, title ASC, reminder_id DESC")
-    DataSource.Factory<Integer, Task> queryBook(String bookId);
+    @Query("SELECT * FROM tasks WHERE list_id = :listId AND trashed = 0 AND completed = 0 ORDER BY priority DESC, title ASC, reminder_id DESC")
+    DataSource.Factory<Integer, Task> queryList(String listId);
 
     @Query("SELECT * FROM tasks WHERE completed = 1 AND trashed = 0 ORDER BY completed_date_time DESC")
     DataSource.Factory<Integer, Task> queryCompleted();
@@ -76,7 +80,7 @@ public interface TaskDao {
     DataSource.Factory<Integer, Task> queryTrashed();
 
     @Query("SELECT * FROM tasks WHERE title LIKE :query AND trashed = 0")
-    List<Task> search(String query);
+    DataSource.Factory<Integer, Task> search(String query);
 
     @Query("SELECT COUNT(*) FROM tasks")
     int count();

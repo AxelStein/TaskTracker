@@ -152,6 +152,10 @@ public class MenuUtil {
         }
     }
 
+    public static boolean checkId(@Nullable MenuItem item, int itemId) {
+        return item != null && item.getItemId() == itemId;
+    }
+
     public static void check(@Nullable Menu menu, @IdRes int itemId, boolean checked) {
         if (menu != null) {
             check(menu.findItem(itemId), checked);
@@ -184,7 +188,7 @@ public class MenuUtil {
         }
     }
 
-    public static void removeGroup(@Nullable Menu menu, int groupId) {
+    public static void removeGroupItems(@Nullable Menu menu, int groupId) {
         if (menu != null) {
             for (int count = menu.size(), i = count - 1; i >= 0; i--) {
                 MenuItem item = menu.getItem(i);
