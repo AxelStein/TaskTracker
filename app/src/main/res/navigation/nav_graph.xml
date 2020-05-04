@@ -45,7 +45,8 @@
 
     <fragment
         android:id="@+id/fragment_search"
-        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment">
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
+        android:label="@string/action_search">
         <argument
             android:name="BUNDLE_VIEW_MODEL"
             app:argType="integer"

@@ -15,7 +15,7 @@
     <string name="hint_title">Title</string>
     <string name="hint_description">Description</string>
     <string name="description_clear">Clear description</string>
-
+    <string name="error">Error</string>
     <string-array name="priority">
         <item>None</item>
         <item>Low</item>

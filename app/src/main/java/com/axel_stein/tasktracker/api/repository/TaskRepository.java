@@ -109,7 +109,7 @@ public class TaskRepository {
 
     public Completable toggleCompleted(Task task) {
         checkRules(notNull(task));
-        return setCompleted(task.getId(), !task.isCompleted());
+        return setCompleted(task, !task.isCompleted());
     }
 
     public Completable setCompleted(Task task, boolean completed) {
@@ -188,7 +188,7 @@ public class TaskRepository {
                     taskExists(mDao, id)
             );
             return mDao.get(id);
-        });
+        }); // todo map
     }
 
     public Flowable<List<Task>> query() {

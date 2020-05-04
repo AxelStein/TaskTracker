@@ -2,6 +2,9 @@ package com.axel_stein.tasktracker.ui.task_list;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,9 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.axel_stein.tasktracker.R;
-import com.axel_stein.tasktracker.ui.task_list.view_model.ListViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.CompletedViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.InboxViewModel;
+import com.axel_stein.tasktracker.ui.task_list.view_model.ListViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.SearchViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.TasksViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.TrashedViewModel;
@@ -37,32 +40,31 @@ public class TasksFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle args = getArguments();
-        if (args != null) {
-            int viewModel = args.getInt(BUNDLE_VIEW_MODEL);
-            ViewModelProvider provider = new ViewModelProvider(this);
+        setHasOptionsMenu(true);
 
-            switch (viewModel) {
-                case VIEW_MODEL_INBOX:
-                    mViewModel = provider.get(InboxViewModel.class);
-                    break;
+        ViewModelProvider provider = new ViewModelProvider(this);
+        Bundle args = requireArguments();
+        int viewModel = args.getInt(BUNDLE_VIEW_MODEL);
+        switch (viewModel) {
+            case VIEW_MODEL_INBOX:
+                mViewModel = provider.get(InboxViewModel.class);
+                break;
 
-                case VIEW_MODEL_COMPLETED:
-                    mViewModel = provider.get(CompletedViewModel.class);
-                    break;
+            case VIEW_MODEL_COMPLETED:
+                mViewModel = provider.get(CompletedViewModel.class);
+                break;
 
-                case VIEW_MODEL_TRASHED:
-                    mViewModel = provider.get(TrashedViewModel.class);
-                    break;
+            case VIEW_MODEL_TRASHED:
+                mViewModel = provider.get(TrashedViewModel.class);
+                break;
 
-                case VIEW_MODEL_LIST:
-                    mViewModel = new ViewModelProvider(requireActivity()).get(ListViewModel.class);
-                    break;
+            case VIEW_MODEL_LIST:
+                mViewModel = new ViewModelProvider(requireActivity()).get(ListViewModel.class);
+                break;
 
-                case VIEW_MODEL_SEARCH:
-                    mViewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
-                    break;
-            }
+            case VIEW_MODEL_SEARCH:
+                mViewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
+                break;
         }
     }
 
@@ -87,12 +89,26 @@ public class TasksFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (mViewModel != null) {
-            mViewModel.getTaskList().observe(getViewLifecycleOwner(), tasks -> {
-                mListAdapter.submitList(tasks);
-                ViewUtil.setVisible(tasks == null || tasks.size() == 0, mTextEmpty);
-            });
+        mViewModel.getTaskList().observe(getViewLifecycleOwner(), tasks -> {
+            mListAdapter.submitList(tasks);
+            ViewUtil.setVisible(tasks == null || tasks.size() == 0, mTextEmpty);
+        });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if (mViewModel.hasMenu()) {
+            inflater.inflate(mViewModel.getMenuResId(), menu);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (mViewModel.hasMenu()) {
+            mViewModel.onMenuItemClick(item.getItemId());
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

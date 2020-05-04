@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> mIntentActionFactory.addTask());
+        fab.setOnClickListener(view -> mIntentActionFactory.addTask(getSelectedTaskListId()));
 
         mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -101,6 +102,15 @@ public class MainActivity extends AppCompatActivity {
         setupActionBarWithNavController(this, mNavController, mAppBarConfiguration);
     }
 
+    @Nullable
+    private String getSelectedTaskListId() {
+        MenuItem item = mNavigationView.getCheckedItem();
+        if (item != null && item.getItemId() == R.id.fragment_list) {
+            return item.getIntent().getAction();
+        }
+        return null;
+    }
+
     private void setActionBarTitle(String title) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -130,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
                 SearchViewModel viewModel = new ViewModelProvider(MainActivity.this).get(SearchViewModel.class);
                 viewModel.setQuery(query);
                 onNavDestinationSelected(searchItem, mNavController);
-
                 searchView.clearFocus();
                 //searchView.setQuery("", false);
                 //searchItem.collapseActionView();

@@ -27,7 +27,7 @@ public abstract class TasksViewModel extends ViewModel {
     }
 
     public void onTaskClick(Task task) {
-        mIntentActionFactory.editTask(task);
+        mIntentActionFactory.editTask(task.getId());
     }
 
     public void onTaskLongClick(Task task) {}
@@ -51,4 +51,13 @@ public abstract class TasksViewModel extends ViewModel {
 
     protected abstract DataSource.Factory<Integer, Task> getDataSource();
 
+    public int getMenuResId() {
+        return 0;
+    }
+
+    public boolean hasMenu() {
+        return getMenuResId() != 0;
+    }
+
+    public void onMenuItemClick(int itemId) {}
 }

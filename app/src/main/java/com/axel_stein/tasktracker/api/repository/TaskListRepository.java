@@ -47,6 +47,17 @@ public class TaskListRepository {
         });
     }
 
+    public Completable update(TaskList list) {
+        return completable(() -> {
+            checkRules(notNull(list));
+            checkRules(
+                    notEmptyString(list.getId()),
+                    notEmptyString(list.getName())
+            );
+            mDao.update(list);
+        });
+    }
+
     public Completable setName(final String id, final String name) {
         return completable(() -> {
             checkRules(

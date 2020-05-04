@@ -3,6 +3,7 @@ package com.axel_stein.tasktracker.api.room.dao;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.axel_stein.tasktracker.api.model.TaskList;
 
@@ -13,6 +14,9 @@ public interface TaskListDao {
 
     @Insert
     void insert(TaskList list);
+
+    @Update
+    void update(TaskList list);
 
     @Query("UPDATE task_lists SET name = :name WHERE id = :id")
     void setName(String id, String name);

@@ -1,6 +1,7 @@
 package com.axel_stein.tasktracker.ui.edit_task;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.Menu;
@@ -19,6 +20,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.axel_stein.tasktracker.R;
+import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.ui.IntentActionFactory;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
 
@@ -30,6 +33,7 @@ public class EditTaskActivity extends AppCompatActivity {
     private TextView mTextReminder;
     private EditTaskViewModel mViewModel;
     private SimpleTextWatcher mTextWatcher;
+    private View mFocusView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,45 +49,86 @@ public class EditTaskActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
+        mFocusView = findViewById(R.id.focus_view);
         mCheckBoxCompleted = findViewById(R.id.check_box_completed);
+        mCheckBoxCompleted.setOnCheckedChangeListener((view, checked) -> mViewModel.setCompleted(checked));
+
         mEditTitle = findViewById(R.id.edit_title);
         mTextWatcher = new SimpleTextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                mViewModel.onTitleChanged(s.toString());
+                mViewModel.setTitle(s.toString());
             }
         };
+        mEditTitle.addTextChangedListener(mTextWatcher);
+
         mTextList = findViewById(R.id.text_list);
         mSpinnerPriority = findViewById(R.id.spinner_priority);
+        mSpinnerPriority.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mViewModel.setPriority(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         mViewModel = new ViewModelProvider(this).get(EditTaskViewModel.class);
 
         Intent intent = getIntent();
-        String action = intent.getAction();
-        mViewModel.getData(action).observe(this, task -> {
-            mCheckBoxCompleted.setChecked(task.isCompleted());
-            mCheckBoxCompleted.setOnClickListener(v -> mViewModel.onCompletedChanged());
+        String id = intent.getStringExtra(IntentActionFactory.EXTRA_TASK_ID);
+        String listId = intent.getStringExtra(IntentActionFactory.EXTRA_LIST_ID);
+        mViewModel.getData(id, listId).observe(this, state -> {
+            switch (state.getState()) {
+                case EditTaskViewState.STATE_SUCCESS:
+                    Task task = state.getData();
+                    mCheckBoxCompleted.setChecked(task.isCompleted());
+                    mSpinnerPriority.setSelection(task.getPriority());
+                    mEditTitle.setText(task.getTitle());
+                    mTextList.setText(task.getListName());
+                    break;
 
-            mSpinnerPriority.setOnItemSelectedListener(null);
-            mSpinnerPriority.setSelection(task.getPriority());
-            mSpinnerPriority.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    mViewModel.onPriorityChanged(position);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
-
-            mEditTitle.removeTextChangedListener(mTextWatcher);
-            mEditTitle.setText(task.getTitle());
-            mEditTitle.addTextChangedListener(mTextWatcher);
-
-            mTextList.setText(task.getListName());
+                case EditTaskViewState.STATE_ERROR:
+                    // todo
+                    break;
+            }
         });
+
+        final View viewMain = findViewById(R.id.coordinator_edit);
+        viewMain.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect r = new Rect();
+            viewMain.getWindowVisibleDisplayFrame(r);
+            int screenHeight = viewMain.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+            if (keypadHeight > screenHeight * 0.15) {
+                // 0.15 ratio is perhaps enough to determine keypad height.
+                // keyboard is opened
+                if (!isKeyboardShowing) {
+                    isKeyboardShowing = true;
+                    onKeyboardVisibilityChanged(true);
+                }
+            } else {
+                // keyboard is closed
+                if (isKeyboardShowing) {
+                    isKeyboardShowing = false;
+                    onKeyboardVisibilityChanged(false);
+                }
+            }
+        });
+    }
+
+    private boolean isKeyboardShowing = false;
+    private void onKeyboardVisibilityChanged(boolean opened) {
+        if (!opened) {
+            hideKeyboard();
+        }
+    }
+
+    public void hideKeyboard() {
+        if (!mFocusView.hasFocus()) {
+            mFocusView.requestFocus();
+        }
     }
 
     @Override
@@ -101,7 +146,12 @@ public class EditTaskActivity extends AppCompatActivity {
                 break;
 
             case R.id.menu_delete:
-                mViewModel.onDelete();
+                mViewModel.delete();
+                finish();
+                break;
+
+            case R.id.menu_restore:
+                mViewModel.restore();
                 finish();
                 break;
         }
