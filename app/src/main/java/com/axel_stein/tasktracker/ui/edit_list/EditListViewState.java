@@ -5,22 +5,20 @@ import com.axel_stein.tasktracker.ui.BaseViewState;
 
 public class EditListViewState extends BaseViewState<TaskList> {
 
-    private EditListViewState(TaskList data, int currentState, Throwable error) {
-        this.mData = data;
-        this.mError = error;
-        this.mState = currentState;
+    private EditListViewState(int state, TaskList data, Throwable error) {
+        super(state, data, error);
     }
 
     public static EditListViewState loading() {
-        return new EditListViewState(null, STATE_LOADING, null);
+        return new EditListViewState(STATE_LOADING,null,null);
     }
 
     public static EditListViewState success(TaskList list) {
-        return new EditListViewState(list, STATE_SUCCESS, null);
+        return new EditListViewState(STATE_SUCCESS, list,null);
     }
 
     public static EditListViewState error(Throwable t) {
-        return new EditListViewState(null, STATE_ERROR, t);
+        return new EditListViewState(STATE_ERROR, null, t);
     }
 
 }

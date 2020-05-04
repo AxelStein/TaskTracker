@@ -19,29 +19,34 @@ public class IntentActionFactory {
 
     public void addTask() {
         Intent intent = new Intent(mContext, EditTaskActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }
 
     public void addTask(String listId) {
         Intent intent = new Intent(mContext, EditTaskActivity.class);
         intent.putExtra(EXTRA_LIST_ID, listId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }
 
     public void editTask(String id) {
         Intent intent = new Intent(mContext, EditTaskActivity.class);
         intent.putExtra(EXTRA_TASK_ID, id);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }
 
     public void addList() {
         Intent intent = new Intent(mContext, EditListActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }
 
     public void editList(String id) {
         Intent intent = new Intent(mContext, EditListActivity.class);
         intent.putExtra(EXTRA_LIST_ID, id);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
     }
 

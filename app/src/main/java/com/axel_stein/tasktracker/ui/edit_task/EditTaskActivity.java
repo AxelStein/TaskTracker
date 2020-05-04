@@ -24,6 +24,8 @@ import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
+import com.axel_stein.tasktracker.utils.ViewUtil;
+import com.google.android.material.snackbar.Snackbar;
 
 public class EditTaskActivity extends AppCompatActivity {
     private CheckBox mCheckBoxCompleted;
@@ -74,27 +76,6 @@ public class EditTaskActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        mViewModel = new ViewModelProvider(this).get(EditTaskViewModel.class);
-
-        Intent intent = getIntent();
-        String id = intent.getStringExtra(IntentActionFactory.EXTRA_TASK_ID);
-        String listId = intent.getStringExtra(IntentActionFactory.EXTRA_LIST_ID);
-        mViewModel.getData(id, listId).observe(this, state -> {
-            switch (state.getState()) {
-                case EditTaskViewState.STATE_SUCCESS:
-                    Task task = state.getData();
-                    mCheckBoxCompleted.setChecked(task.isCompleted());
-                    mSpinnerPriority.setSelection(task.getPriority());
-                    mEditTitle.setText(task.getTitle());
-                    mTextList.setText(task.getListName());
-                    break;
-
-                case EditTaskViewState.STATE_ERROR:
-                    // todo
-                    break;
-            }
-        });
-
         final View viewMain = findViewById(R.id.coordinator_edit);
         viewMain.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             Rect r = new Rect();
@@ -116,6 +97,30 @@ public class EditTaskActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mViewModel = new ViewModelProvider(this).get(EditTaskViewModel.class);
+
+        Intent intent = getIntent();
+        String id = intent.getStringExtra(IntentActionFactory.EXTRA_TASK_ID);
+        String listId = intent.getStringExtra(IntentActionFactory.EXTRA_LIST_ID);
+        mViewModel.getData(id, listId).observe(this, state -> {
+            switch (state.getState()) {
+                case EditTaskViewState.STATE_SUCCESS:
+                    Task task = state.getData();
+                    mCheckBoxCompleted.setChecked(task.isCompleted());
+                    mSpinnerPriority.setSelection(task.getPriority());
+                    mEditTitle.setText(task.getTitle());
+                    mTextList.setText(task.getListName());
+                    ViewUtil.enable(!task.isTrashed(), mCheckBoxCompleted, mSpinnerPriority, mEditTitle, mTextList);
+                    invalidateOptionsMenu();
+                    // todo reminder
+                    break;
+
+                case EditTaskViewState.STATE_ERROR: // todo
+                    Snackbar.make(mFocusView, R.string.error, Snackbar.LENGTH_SHORT).show();
+                    break;
+            }
+        });
     }
 
     private boolean isKeyboardShowing = false;
@@ -135,6 +140,10 @@ public class EditTaskActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit_task, menu);
         MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
+
+        boolean trashed = mViewModel.isTrashed();
+        MenuUtil.showGroup(menu, R.id.group_trash, trashed);
+        MenuUtil.showGroup(menu, R.id.group_main, !trashed);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -150,9 +159,21 @@ public class EditTaskActivity extends AppCompatActivity {
                 finish();
                 break;
 
+            case R.id.menu_delete_forever:
+                mViewModel.deleteForever(); // todo confirmation
+                finish();
+                break;
+
             case R.id.menu_restore:
                 mViewModel.restore();
                 finish();
+                break;
+
+            case R.id.menu_share:
+                break;
+
+            case R.id.menu_duplicate:
+                mViewModel.duplicate();
                 break;
         }
         return super.onOptionsItemSelected(item);

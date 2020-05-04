@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.fragment_list:
                     ListViewModel viewModel = new ViewModelProvider(this).get(ListViewModel.class);
                     viewModel.setListId(item.getIntent().getAction());
+                    viewModel.getListName().observe(this, this::setActionBarTitle);
                     break;
 
                 case R.id.menu_add_list:

@@ -24,9 +24,12 @@ import java.util.UUID;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.completable;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.flowable;
+import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.single;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskExists;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskListExists;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskNotTrashed;
@@ -181,14 +184,35 @@ public class TaskRepository {
         });
     }
 
-    public Flowable<Task> get(final String id) {
-        return flowable(() -> {
+    public Single<Task> getOrInsert(final String id, final String listId) { // fixme not tested
+        return single(() -> {
+            if (isEmpty(id)) {
+                Task task = new Task();
+                task.setListId(listId);
+                task.setId(UUID.randomUUID().toString());
+                mDao.insert(task);
+                return task;
+            }
+            return mDao.get(id);
+        }).flatMap(task -> Single.fromCallable(() -> new TaskFunction().apply(task)).subscribeOn(Schedulers.io()));
+    }
+
+    public Single<Task> get(final String id) {
+        return single(() -> {
             checkRules(
                     notEmptyString(id),
                     taskExists(mDao, id)
             );
             return mDao.get(id);
-        }); // todo map
+        }).flatMap(task -> Single.fromCallable(() -> new TaskFunction().apply(task)).subscribeOn(Schedulers.io()));
+    }
+
+    public Completable duplicate(Task task) {
+        return completable(() -> {
+            Task copy = new Task(task);
+            copy.setId("");
+            insert(copy).subscribe();
+        });
     }
 
     public Flowable<List<Task>> query() {

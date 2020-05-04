@@ -2,20 +2,38 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/menu_share"
-        android:title="Share" />
+    <group
+        android:visible="false"
+        android:id="@+id/group_main">
 
-    <item
-        android:id="@+id/menu_duplicate"
-        android:title="Duplicate" />
+        <item
+            android:id="@+id/menu_share"
+            android:title="@string/action_share" />
 
-    <item
-        android:id="@+id/menu_delete"
-        android:title="Delete" />
+        <item
+            android:id="@+id/menu_duplicate"
+            android:title="@string/action_duplicate" />
 
-    <item
-        android:id="@+id/menu_restore"
-        android:title="Restore" />
+        <item
+            android:id="@+id/menu_delete"
+            android:title="@string/action_delete" />
+
+    </group>
+
+    <group
+        android:visible="false"
+        android:id="@+id/group_trash">
+
+        <item
+            android:id="@+id/menu_restore"
+            android:visible="false"
+            android:title="@string/action_restore" />
+
+        <item
+            android:id="@+id/menu_delete_forever"
+            android:visible="false"
+            android:title="@string/action_delete_forever" />
+
+    </group>
 
 </menu>
