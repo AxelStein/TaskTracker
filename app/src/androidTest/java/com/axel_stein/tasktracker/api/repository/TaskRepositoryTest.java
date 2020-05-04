@@ -215,8 +215,8 @@ public class TaskRepositoryTest extends RepositoryTest {
         insertTestTask("test 1");
         insertTestTask("test 2");
 
-        Task task = insertTestTask();
-        loadPagedList(mTaskRepository.search("test"), tasks -> {
+        Task task = insertTestTask("name");
+        loadPagedList(mTaskRepository.search("name"), tasks -> {
             assertNotNull(tasks);
             assertEquals(tasks.size(), 1);
             assertEquals(task, tasks.get(0));

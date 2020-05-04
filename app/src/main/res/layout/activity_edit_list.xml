@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppThemeDark.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -24,6 +24,8 @@
         android:orientation="vertical"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -65,9 +67,11 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:visibility="gone"
             android:background="?android:attr/listDivider" />
 
         <Switch
+            android:visibility="gone"
             android:id="@+id/switch_close"
             android:layout_width="match_parent"
             android:layout_height="48dp"

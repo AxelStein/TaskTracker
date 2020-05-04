@@ -1,9 +1,11 @@
 package com.axel_stein.tasktracker.ui.edit_task;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +24,14 @@ import androidx.lifecycle.ViewModelProvider;
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
+import com.axel_stein.tasktracker.utils.KeyboardUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
+import com.axel_stein.tasktracker.utils.ViewUtil;
+import com.google.android.material.snackbar.Snackbar;
 
 public class EditTaskActivity extends AppCompatActivity {
+    private View mScrollView;
     private CheckBox mCheckBoxCompleted;
     private EditText mEditTitle;
     private TextView mTextList;
@@ -34,6 +40,8 @@ public class EditTaskActivity extends AppCompatActivity {
     private EditTaskViewModel mViewModel;
     private SimpleTextWatcher mTextWatcher;
     private View mFocusView;
+    private TextView mTextError;
+    private boolean mShowMenu = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,6 +57,7 @@ public class EditTaskActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
+        mScrollView = findViewById(R.id.scroll_view);
         mFocusView = findViewById(R.id.focus_view);
         mCheckBoxCompleted = findViewById(R.id.check_box_completed);
         mCheckBoxCompleted.setOnCheckedChangeListener((view, checked) -> mViewModel.setCompleted(checked));
@@ -63,6 +72,8 @@ public class EditTaskActivity extends AppCompatActivity {
         mEditTitle.addTextChangedListener(mTextWatcher);
 
         mTextList = findViewById(R.id.text_list);
+        mTextReminder = findViewById(R.id.text_reminder);
+        mTextError = findViewById(R.id.text_error);
         mSpinnerPriority = findViewById(R.id.spinner_priority);
         mSpinnerPriority.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -72,27 +83,6 @@ public class EditTaskActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        mViewModel = new ViewModelProvider(this).get(EditTaskViewModel.class);
-
-        Intent intent = getIntent();
-        String id = intent.getStringExtra(IntentActionFactory.EXTRA_TASK_ID);
-        String listId = intent.getStringExtra(IntentActionFactory.EXTRA_LIST_ID);
-        mViewModel.getData(id, listId).observe(this, state -> {
-            switch (state.getState()) {
-                case EditTaskViewState.STATE_SUCCESS:
-                    Task task = state.getData();
-                    mCheckBoxCompleted.setChecked(task.isCompleted());
-                    mSpinnerPriority.setSelection(task.getPriority());
-                    mEditTitle.setText(task.getTitle());
-                    mTextList.setText(task.getListName());
-                    break;
-
-                case EditTaskViewState.STATE_ERROR:
-                    // todo
-                    break;
-            }
         });
 
         final View viewMain = findViewById(R.id.coordinator_edit);
@@ -116,6 +106,48 @@ public class EditTaskActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mViewModel = new ViewModelProvider(this).get(EditTaskViewModel.class);
+
+        Intent intent = getIntent();
+        String id = intent.getStringExtra(IntentActionFactory.EXTRA_TASK_ID);
+        String listId = intent.getStringExtra(IntentActionFactory.EXTRA_LIST_ID);
+        mViewModel.getData(id, listId).observe(this, state -> {
+            switch (state.getState()) {
+                case EditTaskViewState.STATE_SUCCESS:
+                    ViewUtil.hide(mTextError);
+                    ViewUtil.show(mScrollView);
+
+                    Task task = state.getData();
+                    mCheckBoxCompleted.setChecked(task.isCompleted());
+                    mSpinnerPriority.setSelection(task.getPriority());
+                    mEditTitle.setText(task.getTitle());
+                    if (!task.isTrashed() && mEditTitle.getText().length() == 0) {
+                        mEditTitle.requestFocus();
+                        KeyboardUtil.show(mEditTitle);
+                    }
+                    mTextList.setText(task.getListName());
+                    ViewUtil.enable(!task.isTrashed(), mCheckBoxCompleted, mSpinnerPriority,
+                            mEditTitle, mTextList, mTextReminder);
+                    invalidateOptionsMenu();
+                    // todo reminder
+                    break;
+
+                case EditTaskViewState.STATE_ERROR:
+                    ViewUtil.show(mTextError);
+                    ViewUtil.hide(mScrollView);
+
+                    mShowMenu = false;
+                    invalidateOptionsMenu();
+                    break;
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        mEditTitle.removeTextChangedListener(mTextWatcher);
+        super.onDestroy();
     }
 
     private boolean isKeyboardShowing = false;
@@ -133,8 +165,14 @@ public class EditTaskActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_edit_task, menu);
-        MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
+        if (mShowMenu) {
+            getMenuInflater().inflate(R.menu.menu_edit_task, menu);
+            MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
+
+            boolean trashed = mViewModel.isTrashed();
+            MenuUtil.showGroup(menu, R.id.group_trash, trashed);
+            MenuUtil.showGroup(menu, R.id.group_main, !trashed);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -150,12 +188,42 @@ public class EditTaskActivity extends AppCompatActivity {
                 finish();
                 break;
 
+            case R.id.menu_delete_forever:
+                mViewModel.deleteForever(); // todo confirmation
+                finish();
+                break;
+
             case R.id.menu_restore:
                 mViewModel.restore();
                 finish();
                 break;
+
+            case R.id.menu_share:
+                actionShare();
+                break;
+
+            case R.id.menu_duplicate:
+                mViewModel.duplicate();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void actionShare() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_SUBJECT, mEditTitle.getText());
+
+        PackageManager pm = getPackageManager();
+        if (pm != null) {
+            if (intent.resolveActivity(pm) != null) {
+                startActivity(intent);
+            } else {
+                Log.e("TAG", "share note: no activity found");
+                Snackbar.make(mFocusView, R.string.error, Snackbar.LENGTH_SHORT).show();
+            }
+        }
     }
 
 }

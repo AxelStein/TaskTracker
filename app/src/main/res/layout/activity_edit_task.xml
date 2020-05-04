@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"/>
+            app:popupTheme="@style/AppThemeDark.PopupOverlay"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -40,6 +40,7 @@
         <!--android:layout_above="@+id/layout_data"-->
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scroll_view"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical">
@@ -60,7 +61,7 @@
                         android:id="@+id/check_box_completed"
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
-                        android:layout_marginLeft="12dp"
+                        android:layout_marginStart="12dp"
                         android:layout_marginTop="8dp"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -91,6 +92,28 @@
                     android:layout_height="1dp"
                     android:background="?android:attr/listDivider" />
 
+                <com.axel_stein.tasktracker.views.IconTextView
+                    android:id="@+id/text_reminder"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:drawablePadding="32dp"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="Set reminder"
+                    android:textSize="16sp"
+                    app:iconLeft="@drawable/ic_alarm_24px"
+                    app:iconLeftTint="?android:attr/textColorPrimary" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -102,7 +125,8 @@
                         android:minHeight="48dp"
                         android:scaleType="centerInside"
                         android:tint="?attr/menuItemTintColor"
-                        android:src="@drawable/ic_low_priority_24px" />
+                        android:src="@drawable/ic_low_priority_24px"
+                        tools:ignore="ContentDescription" />
 
                     <Spinner
                         android:id="@+id/spinner_priority"
@@ -136,11 +160,6 @@
                     app:iconLeftTint="?android:attr/textColorPrimary"
                     tools:text="Inbox" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?android:attr/listDivider" />
-
                 <!--
                 <com.axel_stein.tasktracker.views.IconTextView
                     android:id="@+id/text_priority"
@@ -161,26 +180,21 @@
                     tools:text="High" />
                 -->
 
-                <com.axel_stein.tasktracker.views.IconTextView
-                    android:id="@+id/text_reminder"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:drawablePadding="32dp"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:maxLines="1"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:textSize="16sp"
-                    app:iconLeft="@drawable/ic_alarm_24px"
-                    app:iconLeftTint="?android:attr/textColorPrimary"
-                    tools:text="4 mai 17:30" />
-
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
+
+        <TextView
+            android:id="@+id/text_error"
+            android:text="@string/error"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="16sp"
+            android:layout_centerInParent="true"
+            android:drawableTop="@drawable/ic_error_outline_24px"
+            android:drawablePadding="4dp"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     </RelativeLayout>
 

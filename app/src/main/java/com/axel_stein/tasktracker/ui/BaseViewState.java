@@ -5,9 +5,15 @@ public class BaseViewState<T> {
     public static final int STATE_SUCCESS = 1;
     public static final int STATE_ERROR = 2;
 
+    protected int mState;
     protected T mData;
     protected Throwable mError;
-    protected int mState;
+
+    public BaseViewState(int state, T data, Throwable error) {
+        mState = state;
+        mData = data;
+        mError = error;
+    }
 
     public T getData() {
         return mData;

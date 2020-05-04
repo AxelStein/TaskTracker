@@ -6,23 +6,22 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.axel_stein.tasktracker.App;
+import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.api.repository.TaskRepository;
-
-import org.reactivestreams.Subscription;
 
 import javax.inject.Inject;
 
 import io.reactivex.CompletableObserver;
-import io.reactivex.FlowableSubscriber;
+import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 
+import static com.axel_stein.tasktracker.ui.BaseViewState.STATE_SUCCESS;
 import static com.axel_stein.tasktracker.ui.edit_task.EditTaskViewState.error;
 import static com.axel_stein.tasktracker.ui.edit_task.EditTaskViewState.success;
 import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
-import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 
-public class EditTaskViewModel extends ViewModel implements FlowableSubscriber<Task> {
+public class EditTaskViewModel extends ViewModel implements SingleObserver<Task> {
     private MutableLiveData<EditTaskViewState> mData;
 
     @Inject
@@ -41,6 +40,8 @@ public class EditTaskViewModel extends ViewModel implements FlowableSubscriber<T
     }
 
     private void loadData(String id, String listId) {
+        mRepository.getOrInsert(id, listId).subscribe(this);
+        /*
         if (isEmpty(id)) {
             Task task = new Task();
             task.setListId(listId);
@@ -62,16 +63,17 @@ public class EditTaskViewModel extends ViewModel implements FlowableSubscriber<T
         } else {
             mRepository.get(id).subscribe(this);
         }
+        */
     }
 
     @Override
-    public void onSubscribe(Subscription s) {}
+    public void onSubscribe(Disposable d) {
+
+    }
 
     @Override
-    public void onNext(Task task) {
-        if (mData != null) {
-            mData.postValue(success(task));
-        }
+    public void onSuccess(Task task) {
+        mData.postValue(success(task));
     }
 
     @Override
@@ -80,23 +82,25 @@ public class EditTaskViewModel extends ViewModel implements FlowableSubscriber<T
         mData.postValue(error(t));
     }
 
-    @Override
-    public void onComplete() {}
-
     @Nullable
     private Task getTask() {
         EditTaskViewState viewState = mData.getValue();
-        if (viewState != null && viewState.getState() == EditTaskViewState.STATE_SUCCESS) {
+        if (viewState != null && viewState.getState() == STATE_SUCCESS) {
             return viewState.getData();
         }
         return null;
+    }
+
+    public boolean isTrashed() {
+        Task task = getTask();
+        return task != null && task.isTrashed();
     }
 
     public void setTitle(String title) {
         Task task = getTask();
         if (task != null && !task.isTrashed() && !contentEquals(title, task.getTitle())) {
             task.setTitle(title);
-            mRepository.setTitle(task.getId(), title).subscribe();
+            mRepository.setTitle(task.getId(), title).subscribe(observe());
         }
     }
 
@@ -114,6 +118,13 @@ public class EditTaskViewModel extends ViewModel implements FlowableSubscriber<T
         }
     }
 
+    public void deleteForever() {
+        Task task = getTask();
+        if (task != null) {
+            mRepository.delete(task.getId()).subscribe();
+        }
+    }
+
     public void restore() {
         Task task = getTask();
         if (task != null && task.isTrashed()) {
@@ -124,7 +135,34 @@ public class EditTaskViewModel extends ViewModel implements FlowableSubscriber<T
     public void setPriority(int priority) {
         Task task = getTask();
         if (task != null && !task.isTrashed() && task.getPriority() != priority) {
-            mRepository.setPriority(task, priority).subscribe();
+            mRepository.setPriority(task, priority).subscribe(observe());
         }
     }
+
+    public void duplicate() {
+        Task task = getTask();
+        if (task != null && !task.isTrashed()) {
+            mRepository.duplicate(task).subscribe(observe());
+        }
+    }
+
+    private static CompletableObserver observe() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Events.invalidateTasks();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+        };
+    }
+
 }

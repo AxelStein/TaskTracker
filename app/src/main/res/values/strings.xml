@@ -16,6 +16,15 @@
     <string name="hint_description">Description</string>
     <string name="description_clear">Clear description</string>
     <string name="error">Error</string>
+    <string name="action_delete_forever">Delete forever</string>
+    <string name="action_restore">Restore</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_duplicate">Duplicate</string>
+    <string name="action_share">Share</string>
+    <string name="action_done">Done</string>
+    <string name="action_complete">Complete</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_empty_trash">Empty trash</string>
     <string-array name="priority">
         <item>None</item>
         <item>Low</item>

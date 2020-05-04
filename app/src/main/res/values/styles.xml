@@ -25,7 +25,7 @@
         <item name="reminderTint">@color/reminder_tint_dark</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">?attr/colorPrimary</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_clear_24px</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_clear_white_24px</item>
         <item name="actionModeStyle">@style/AppThemeDark.ActionMode</item>
         <item name="colorControlNormal">@color/text_color_primary_dark</item>
         <item name="menuItemTintColor">@color/text_color_primary_dark</item>
@@ -37,11 +37,11 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppTheme.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="height">48dp</item>
+        <item name="height">?attr/actionBarSize</item>
     </style>
 
     <style name="AppThemeDark.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="height">48dp</item>
+        <item name="height">?attr/actionBarSize</item>
     </style>
 
     <style name="AppThemeDark.NoActionBar">

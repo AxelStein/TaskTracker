@@ -79,6 +79,9 @@ public interface TaskDao {
     @Query("SELECT * FROM tasks WHERE trashed = 1 ORDER BY trashed_date_time DESC")
     DataSource.Factory<Integer, Task> queryTrashed();
 
+    @Query("SELECT * FROM tasks WHERE trashed = 1 ORDER BY trashed_date_time DESC")
+    List<Task> queryTrashedList();
+
     @Query("SELECT * FROM tasks WHERE title LIKE :query AND trashed = 0")
     DataSource.Factory<Integer, Task> search(String query);
 

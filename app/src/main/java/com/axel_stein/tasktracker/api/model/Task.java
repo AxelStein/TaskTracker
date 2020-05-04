@@ -14,7 +14,7 @@ import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
 @Entity(tableName = "tasks")
-public class Task {
+public class Task implements Cloneable {
     public static final int PRIORITY_NONE = 0;
     public static final int PRIORITY_LOW = 1;
     public static final int PRIORITY_MIDDLE = 2;
@@ -58,10 +58,30 @@ public class Task {
     private boolean reminderPassed;
 
     @Ignore
-    private String bookName;
+    private String listName;
 
     @Ignore
     private int color;
+
+    public Task() {
+    }
+
+    public Task(Task from) {
+        id = from.id;
+        title = from.title;
+        description = from.description;
+        completed = from.completed;
+        completedDateTime = from.completedDateTime;
+        priority = from.priority;
+        trashed = from.trashed;
+        trashedDateTime = from.trashedDateTime;
+        listId = from.listId;
+        reminderId = from.reminderId;
+        dateTimeFormatted = from.dateTimeFormatted;
+        reminderPassed = from.reminderPassed;
+        listName = from.listName;
+        color = from.color;
+    }
 
     public boolean hasId() {
         return notEmpty(id);
@@ -134,20 +154,20 @@ public class Task {
         this.trashedDateTime = trashedDateTime;
     }
 
-    public String getBookId() {
-        return bookId;
+    public void setListId(String listId) {
+        this.listId = listId;
     }
 
-    public void setBookId(String bookId) {
-        this.bookId = bookId;
+    public String getListId() {
+        return listId;
     }
 
-    public String getBookName() {
-        return bookName;
+    public void setListName(String listName) {
+        this.listName = listName;
     }
 
-    public void setBookName(String bookName) {
-        this.bookName = bookName;
+    public String getListName() {
+        return listName;
     }
 
     public int getColor() {
@@ -197,7 +217,7 @@ public class Task {
             builder.append(completed, t.completed);
             builder.append(trashed, t.trashed);
             builder.append(priority, t.priority);
-            builder.append(bookId, t.bookId);
+            builder.append(listId, t.listId);
             builder.append(reminderId, t.reminderId);
             return contentEquals(id, t.id);
         }
@@ -211,4 +231,5 @@ public class Task {
                 ", title='" + title + '\'' +
                 '}';
     }
+
 }

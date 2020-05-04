@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.axel_stein.tasktracker.App;
-import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.repository.TaskListRepository;
 import com.axel_stein.tasktracker.ui.BaseViewAction;
@@ -14,14 +13,12 @@ import org.reactivestreams.Subscription;
 
 import javax.inject.Inject;
 
-import io.reactivex.CompletableObserver;
 import io.reactivex.FlowableSubscriber;
-import io.reactivex.disposables.Disposable;
 
-import static com.axel_stein.tasktracker.ui.BaseViewAction.finish;
-import static com.axel_stein.tasktracker.ui.BaseViewAction.showMessage;
+import static com.axel_stein.tasktracker.ui.BaseViewState.STATE_SUCCESS;
 import static com.axel_stein.tasktracker.ui.edit_list.EditListViewState.error;
 import static com.axel_stein.tasktracker.ui.edit_list.EditListViewState.success;
+import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 import static java.util.Objects.requireNonNull;
 
@@ -55,65 +52,10 @@ public class EditListViewModel extends ViewModel implements FlowableSubscriber<T
         return mActions;
     }
 
-    public void onNameChanged(String name) {
-
-        requireNonNull(mData.getValue()).getData().setName(name);
-    }
-
-    public void onCloseChanged(boolean closed) {
-        requireNonNull(mData.getValue()).getData().setClosed(closed);
-    }
-
-    public void save() {
-        CompletableObserver observer = new CompletableObserver() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onComplete() {
-                mActions.postValue(finish());
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-                mActions.postValue(showMessage(R.string.error));
-            }
-        };
-
-        TaskList list = requireNonNull(mData.getValue()).getData();
-        if (list.hasId()) {
-            mRepository.update(list).subscribe(observer);
-        } else {
-            mRepository.insert(list).subscribe(observer);
-        }
-    }
-
-    public void delete() {
-        // todo confirmation
-        TaskList list = requireNonNull(mData.getValue()).getData();
-        mRepository.delete(list.getId()).subscribe(new CompletableObserver() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onComplete() {
-                mActions.postValue(finish());
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                mData.postValue(error(e));
-            }
-        });
-    }
-
     @Override
-    public void onSubscribe(Subscription s) {}
+    public void onSubscribe(Subscription s) {
+        s.request(1);
+    }
 
     @Override
     public void onNext(TaskList list) {
@@ -127,8 +69,53 @@ public class EditListViewModel extends ViewModel implements FlowableSubscriber<T
     }
 
     @Override
-    public void onComplete() {
+    public void onComplete() {}
 
+    public void setName(String name) {
+        TaskList list = getList();
+        if (list != null && !contentEquals(name, list.getName())) {
+            list.setName(name);
+        }
+    }
+
+    public void setClosed(boolean closed) {
+        requireNonNull(mData.getValue()).getData().setClosed(closed);
+        TaskList list = getList();
+        if (list != null && list.isClosed() != closed) {
+            list.setClosed(closed);
+        }
+    }
+
+    public void save() {
+        TaskList list = getList();
+        if (list != null) {
+            if (list.hasId()) {
+                mRepository.update(list).subscribe();
+            } else {
+                mRepository.insert(list).subscribe();
+            }
+        }
+    }
+
+    public void delete() {
+        // todo confirmation
+        TaskList list = getList();
+        if (list != null) {
+            mRepository.delete(list.getId()).subscribe();
+        }
+    }
+
+    public boolean hasId() {
+        TaskList list = getList();
+        return list != null && list.hasId();
+    }
+
+    private TaskList getList() {
+        EditListViewState state = mData.getValue();
+        if (state != null && state.getState() == STATE_SUCCESS) {
+            return state.getData();
+        }
+        return null;
     }
 
 }

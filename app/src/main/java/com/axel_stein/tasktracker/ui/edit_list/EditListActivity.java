@@ -3,6 +3,7 @@ package com.axel_stein.tasktracker.ui.edit_list;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -15,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.TaskList;
-import com.axel_stein.tasktracker.ui.BaseViewAction;
+import com.axel_stein.tasktracker.utils.KeyboardUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
 import com.axel_stein.tasktracker.utils.TextUtil;
@@ -29,6 +30,7 @@ public class EditListActivity extends AppCompatActivity {
     private IconTextView mTextColor;
     private Switch mSwitchClose;
     private EditListViewModel mViewModel;
+    private TextWatcher mTextWatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,20 +46,20 @@ public class EditListActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
-        mEditName = findViewById(R.id.edit_name);
-        mEditName.addTextChangedListener(new SimpleTextWatcher() {
+        mTextWatcher = new SimpleTextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                mViewModel.onNameChanged(s.toString());
+                mViewModel.setName(s.toString());
             }
-        });
+        };
+        mEditName = findViewById(R.id.edit_name);
+        mEditName.addTextChangedListener(mTextWatcher);
         mTextColor = findViewById(R.id.text_color);
         mSwitchClose = findViewById(R.id.switch_close);
-        mSwitchClose.setOnCheckedChangeListener((v, checked) -> mViewModel.onCloseChanged(checked));
+        mSwitchClose.setOnCheckedChangeListener((v, checked) -> mViewModel.setClosed(checked));
 
         Intent intent = getIntent();
         String id = intent.getStringExtra(EXTRA_LIST_ID);
-
         mViewModel = new ViewModelProvider(this).get(EditListViewModel.class);
         mViewModel.getData(id).observe(this, viewState -> {
             switch (viewState.getState()) {
@@ -65,8 +67,15 @@ public class EditListActivity extends AppCompatActivity {
                     TaskList list = viewState.getData();
                     mEditName.setText(list.getName());
                     mEditName.setSelection(TextUtil.length(mEditName.getText()));
+                    if (mEditName.getText().length() == 0) {
+                        mEditName.requestFocus();
+                        KeyboardUtil.show(mEditName);
+                    } else {
+                        mEditName.clearFocus();
+                    }
                     mTextColor.setIconRightTintColor(list.getColor());
                     mSwitchClose.setChecked(list.isClosed());
+                    invalidateOptionsMenu();
                     break;
 
                 case EditListViewState.STATE_ERROR:
@@ -74,23 +83,19 @@ public class EditListActivity extends AppCompatActivity {
                     break;
             }
         });
-        mViewModel.getActions().observe(this, action -> {
-            switch (action.getId()) {
-                case BaseViewAction.ACTION_FINISH:
-                    finish();
-                    break;
+    }
 
-                case BaseViewAction.ACTION_SHOW_MESSAGE:
-                    Snackbar.make(mTextColor, action.getIntExtra(), Snackbar.LENGTH_SHORT).show();
-                    break;
-            }
-        });
+    @Override
+    protected void onDestroy() {
+        mEditName.removeTextChangedListener(mTextWatcher);
+        super.onDestroy();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit_list, menu);
         MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
+        MenuUtil.show(menu, mViewModel.hasId(), R.id.menu_delete);
         return true;
     }
 
