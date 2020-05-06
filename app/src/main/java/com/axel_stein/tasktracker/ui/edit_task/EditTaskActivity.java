@@ -23,14 +23,16 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
+import com.axel_stein.tasktracker.ui.dialog.SelectListDialog;
 import com.axel_stein.tasktracker.utils.KeyboardUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
 import com.axel_stein.tasktracker.utils.ViewUtil;
 import com.google.android.material.snackbar.Snackbar;
 
-public class EditTaskActivity extends AppCompatActivity {
+public class EditTaskActivity extends AppCompatActivity implements SelectListDialog.OnListSelectedListener {
     private View mScrollView;
     private CheckBox mCheckBoxCompleted;
     private EditText mEditTitle;
@@ -72,6 +74,8 @@ public class EditTaskActivity extends AppCompatActivity {
         mEditTitle.addTextChangedListener(mTextWatcher);
 
         mTextList = findViewById(R.id.text_list);
+        mTextList.setOnClickListener(v -> new SelectListDialog().show(getSupportFragmentManager(), null));
+
         mTextReminder = findViewById(R.id.text_reminder);
         mTextError = findViewById(R.id.text_error);
         mSpinnerPriority = findViewById(R.id.spinner_priority);
@@ -224,6 +228,11 @@ public class EditTaskActivity extends AppCompatActivity {
                 Snackbar.make(mFocusView, R.string.error, Snackbar.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onListSelected(TaskList list) {
+        mViewModel.setList(list);
     }
 
 }

@@ -4,6 +4,7 @@ import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.reminder.ReminderReceiver;
 import com.axel_stein.tasktracker.api.reminder.ReminderService;
 import com.axel_stein.tasktracker.ui.MainActivity;
+import com.axel_stein.tasktracker.ui.dialog.SelectListDialog;
 import com.axel_stein.tasktracker.ui.edit_list.EditListViewModel;
 import com.axel_stein.tasktracker.ui.edit_task.EditTaskViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.TasksViewModel;
@@ -22,4 +23,6 @@ public interface AppComponent {
     void inject(MainActivity activity);
     void inject(EditTaskViewModel viewModel);
     void inject(EditListViewModel viewModel);
+    void inject(SelectListDialog.ListViewModel viewModel);
+    void inject(SelectListDialog dialog);
 }

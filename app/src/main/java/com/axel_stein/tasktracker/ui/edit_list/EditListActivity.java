@@ -112,8 +112,10 @@ public class EditListActivity extends AppCompatActivity {
                 break;
 
             case R.id.menu_done:
-                mViewModel.save();
-                finish();
+                if (mEditName.length() > 0) {
+                    mViewModel.save();
+                    finish();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);

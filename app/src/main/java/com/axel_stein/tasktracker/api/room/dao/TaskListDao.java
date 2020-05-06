@@ -9,6 +9,8 @@ import com.axel_stein.tasktracker.api.model.TaskList;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
+
 @Dao
 public interface TaskListDao {
 
@@ -43,7 +45,7 @@ public interface TaskListDao {
     TaskList get(String id);
 
     @Query("SELECT * FROM task_lists ORDER BY name")
-    List<TaskList> query();
+    Flowable<List<TaskList>> query();
 
     @Query("SELECT * FROM task_lists WHERE folder_id = :folderId ORDER BY name")
     List<TaskList> query(String folderId);

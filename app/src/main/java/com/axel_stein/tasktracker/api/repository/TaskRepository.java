@@ -116,11 +116,13 @@ public class TaskRepository {
     public Completable setListId(final String id, final String listId) {
         return completable(() -> {
             checkRules(
-                    notEmptyString(id, listId),
+                    notEmptyString(id),
                     taskExists(mDao, id),
-                    taskNotTrashed(mDao, id),
-                    taskListExists(mListDao, listId)
+                    taskNotTrashed(mDao, id)
             );
+            if (notEmpty(listId)) {
+                checkRules(taskListExists(mListDao, listId));
+            }
             mDao.setListId(id, listId);
         });
     }
