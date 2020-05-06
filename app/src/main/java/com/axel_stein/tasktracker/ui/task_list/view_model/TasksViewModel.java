@@ -10,6 +10,7 @@ import androidx.paging.PagedList;
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.repository.TaskListRepository;
 import com.axel_stein.tasktracker.api.repository.TaskRepository;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
@@ -122,6 +123,13 @@ public abstract class TasksViewModel extends ViewModel {
         Set<String> ids = mHashMap.keySet();
         for (String id : ids) {
             mRepository.delete(id).subscribe();
+        }
+    }
+
+    public void setListForCheckedTasks(TaskList list) {
+        Set<String> ids = mHashMap.keySet();
+        for (String id : ids) {
+            mRepository.setListId(id, list.getId()).subscribe();
         }
     }
 

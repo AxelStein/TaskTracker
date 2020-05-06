@@ -13,7 +13,13 @@
         android:id="@+id/menu_complete"
         android:icon="@drawable/ic_done_all_24px"
         app:showAsAction="always"
-        android:title="@string/action_complete" />
+        android:title="@string/action_undo_complete" />
+
+    <item
+        android:id="@+id/menu_move_to_list"
+        android:icon="@drawable/ic_move_to_inbox_24px"
+        app:showAsAction="always"
+        android:title="@string/action_move_to_list"/>
 
     <item
         android:id="@+id/menu_delete"

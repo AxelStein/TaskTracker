@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.events.Events;
+import com.axel_stein.tasktracker.api.model.TaskList;
+import com.axel_stein.tasktracker.ui.dialog.SelectListDialog;
 import com.axel_stein.tasktracker.ui.task_list.view_model.CompletedViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.InboxViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.ListViewModel;
@@ -31,7 +33,7 @@ import com.axel_stein.tasktracker.utils.ViewUtil;
 
 import org.greenrobot.eventbus.Subscribe;
 
-public class TasksFragment extends Fragment {
+public class TasksFragment extends Fragment implements SelectListDialog.OnListSelectedListener {
     private static final String BUNDLE_VIEW_MODEL = "BUNDLE_VIEW_MODEL";
     private static final int VIEW_MODEL_INBOX = 0;
     private static final int VIEW_MODEL_COMPLETED = 1;
@@ -146,8 +148,12 @@ public class TasksFragment extends Fragment {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                mViewModel.onActionItemClick(item.getItemId());
-                stopCheckMode();
+                if (item.getItemId() == R.id.menu_move_to_list) {
+                    SelectListDialog.launch(TasksFragment.this);
+                } else {
+                    mViewModel.onActionItemClick(item.getItemId());
+                    stopCheckMode();
+                }
                 return true;
             }
 
@@ -185,4 +191,9 @@ public class TasksFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onListSelected(TaskList list) {
+        mViewModel.setListForCheckedTasks(list);
+        stopCheckMode();
+    }
 }

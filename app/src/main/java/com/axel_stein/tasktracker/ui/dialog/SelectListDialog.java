@@ -36,6 +36,13 @@ import javax.inject.Inject;
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
 public class SelectListDialog extends BottomSheetDialogFragment {
+
+    public static void launch(Fragment fragment) {
+        SelectListDialog dialog = new SelectListDialog();
+        dialog.setTargetFragment(fragment, 0);
+        dialog.show(fragment.getParentFragmentManager(), null);
+    }
+
     private OnListSelectedListener mListener;
 
     @Inject
@@ -82,7 +89,6 @@ public class SelectListDialog extends BottomSheetDialogFragment {
         View view = View.inflate(requireContext(), R.layout.dialog_select_list, null);
         view.findViewById(R.id.btn_action).setOnClickListener(v -> {
             mIntentActionFactory.addList();
-            //dismiss(); // fixme
         });
 
         Adapter adapter = new Adapter(requireContext());

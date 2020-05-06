@@ -27,6 +27,8 @@
     <string name="action_empty_trash">Empty trash</string>
     <string name="action_add_list">Add list</string>
     <string name="title_select_list">Move to list</string>
+    <string name="action_move_to_list">Move to list</string>
+    <string name="action_undo_complete">Undo complete</string>
     <string-array name="priority">
         <item>None</item>
         <item>Low</item>
