@@ -145,11 +145,32 @@ public class TaskListRepositoryTest extends RepositoryTest {
         TaskList taskList = insertTestList();
 
         mTaskRepository.setListId(task.getId(), taskList.getId()).test().assertComplete();
-
         mTaskListRepository.delete(taskList.getId()).test().assertComplete();
-
-        // mTaskRepository.query(book.getId()).test().assertError(BookNotFoundException.class); fixme
         mTaskRepository.query().test().assertValue(tasks -> tasks.size() == 1);
+    }
+
+    @Test
+    public void testDelete_completed() {
+        final Task task = insertTestTask();
+        TaskList taskList = insertTestList();
+        mTaskRepository.setListId(task.getId(), taskList.getId()).subscribe();
+        mTaskRepository.setCompleted(task, true).subscribe();
+
+        mTaskListRepository.delete(taskList.getId()).subscribe();
+
+        mTaskRepository.get(task.getId()).test().assertValue(task);
+    }
+
+    @Test
+    public void testDelete_trashed() {
+        final Task task = insertTestTask();
+        TaskList taskList = insertTestList();
+        mTaskRepository.setListId(task.getId(), taskList.getId()).subscribe();
+        mTaskRepository.setTrashed(task, true).subscribe();
+
+        mTaskListRepository.delete(taskList.getId()).subscribe();
+
+        mTaskRepository.get(task.getId()).test().assertValue(task);
     }
 
     @Test

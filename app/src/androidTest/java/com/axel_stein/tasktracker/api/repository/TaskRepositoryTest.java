@@ -85,7 +85,6 @@ public class TaskRepositoryTest extends RepositoryTest {
         Task task = insertTestTask();
         TaskList list = insertTestList();
         mTaskRepository.setListId("", "listId").test().assertError(IllegalArgumentException.class);
-        mTaskRepository.setListId("taskId", "").test().assertError(IllegalArgumentException.class);
         mTaskRepository.setListId("taskId", list.getId()).test().assertError(TaskNotFoundException.class);
         mTaskRepository.setListId(task.getId(), "listId").test().assertError(TaskListNotFoundException.class);
     }
