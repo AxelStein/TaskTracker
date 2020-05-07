@@ -42,29 +42,6 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
 
     private void loadData(String id, String listId) {
         mRepository.getOrInsert(id, listId).subscribe(this);
-        /*
-        if (isEmpty(id)) {
-            Task task = new Task();
-            task.setListId(listId);
-            mRepository.insert(task).subscribe(new CompletableObserver() {
-                @Override
-                public void onSubscribe(Disposable d) {}
-
-                @Override
-                public void onComplete() {
-                    mData.postValue(success(task));
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    e.printStackTrace();
-                    mData.postValue(error(e));
-                }
-            });
-        } else {
-            mRepository.get(id).subscribe(this);
-        }
-        */
     }
 
     @Override
@@ -101,7 +78,7 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
         Task task = getTask();
         if (task != null && !task.isTrashed() && !contentEquals(title, task.getTitle())) {
             task.setTitle(title);
-            mRepository.setTitle(task.getId(), title).subscribe(observe());
+            mRepository.setTitle(task.getId(), title).subscribe(invalidateTasks());
         }
     }
 
@@ -136,14 +113,14 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
     public void setPriority(int priority) {
         Task task = getTask();
         if (task != null && !task.isTrashed() && task.getPriority() != priority) {
-            mRepository.setPriority(task, priority).subscribe(observe());
+            mRepository.setPriority(task, priority).subscribe(invalidateTasks());
         }
     }
 
     public void duplicate() {
         Task task = getTask();
         if (task != null && !task.isTrashed()) {
-            mRepository.duplicate(task).subscribe(observe());
+            mRepository.duplicate(task).subscribe(invalidateTasks());
         }
     }
 
@@ -168,7 +145,7 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
         }
     }
 
-    private static CompletableObserver observe() {
+    public static CompletableObserver invalidateTasks() {
         return new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {}
