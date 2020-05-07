@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,17 +21,21 @@ import com.axel_stein.tasktracker.utils.KeyboardUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
 import com.axel_stein.tasktracker.utils.TextUtil;
+import com.axel_stein.tasktracker.utils.ViewUtil;
 import com.axel_stein.tasktracker.views.IconTextView;
 import com.google.android.material.snackbar.Snackbar;
 
+import static android.text.TextUtils.isEmpty;
 import static com.axel_stein.tasktracker.ui.IntentActionFactory.EXTRA_LIST_ID;
 
 public class EditListActivity extends AppCompatActivity {
     private EditText mEditName;
+    private TextView mTextError;
     private IconTextView mTextColor;
     private Switch mSwitchClose;
     private EditListViewModel mViewModel;
     private TextWatcher mTextWatcher;
+    private boolean mEnableDoneButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +54,16 @@ public class EditListActivity extends AppCompatActivity {
         mTextWatcher = new SimpleTextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                mViewModel.setName(s.toString());
+                boolean empty = setErrorText(isEmpty(s), R.string.error_name_required);
+                boolean exists = setErrorText(!mViewModel.setName(s.toString()), R.string.error_name_exists);
+                ViewUtil.setVisible(empty || exists, mTextError);
+
+                mEnableDoneButton = !empty && !exists;
+                invalidateOptionsMenu();
             }
         };
         mEditName = findViewById(R.id.edit_name);
-        mEditName.addTextChangedListener(mTextWatcher);
+        mTextError = findViewById(R.id.text_error);
         mTextColor = findViewById(R.id.text_color);
         mSwitchClose = findViewById(R.id.switch_close);
         mSwitchClose.setOnCheckedChangeListener((v, checked) -> mViewModel.setClosed(checked));
@@ -73,6 +83,7 @@ public class EditListActivity extends AppCompatActivity {
                     } else {
                         mEditName.clearFocus();
                     }
+                    mEditName.addTextChangedListener(mTextWatcher);
                     mTextColor.setIconRightTintColor(list.getColor());
                     mSwitchClose.setChecked(list.isClosed());
                     invalidateOptionsMenu();
@@ -83,6 +94,13 @@ public class EditListActivity extends AppCompatActivity {
                     break;
             }
         });
+    }
+
+    private boolean setErrorText(boolean set, int textResId) {
+        if (set) {
+            mTextError.setText(textResId);
+        }
+        return set;
     }
 
     @Override
@@ -96,6 +114,7 @@ public class EditListActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_edit_list, menu);
         MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
         MenuUtil.show(menu, mViewModel.hasId(), R.id.menu_delete);
+        MenuUtil.enable(menu, mEnableDoneButton, R.id.menu_done);
         return true;
     }
 
@@ -112,10 +131,8 @@ public class EditListActivity extends AppCompatActivity {
                 break;
 
             case R.id.menu_done:
-                if (mEditName.length() > 0) {
-                    mViewModel.save();
-                    finish();
-                }
+                mViewModel.save();
+                finish();
                 break;
         }
         return super.onOptionsItemSelected(item);

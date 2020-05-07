@@ -29,6 +29,8 @@
     <string name="title_select_list">Move to list</string>
     <string name="action_move_to_list">Move to list</string>
     <string name="action_undo_complete">Undo complete</string>
+    <string name="error_name_required">Name is required</string>
+    <string name="error_name_exists">Name already exists</string>
     <string-array name="priority">
         <item>None</item>
         <item>Low</item>

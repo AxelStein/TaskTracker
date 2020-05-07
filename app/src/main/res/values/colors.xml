@@ -14,6 +14,7 @@
     <color name="priority_low">#4CAF50</color>
     <color name="priority_middle">#FFC107</color>
     <color name="priority_high">#F44336</color>
+    <color name="text_color_error">#F44336</color>
     <integer-array name="priority_colors">
         <item>@color/priority_none</item>
         <item>@color/priority_low</item>

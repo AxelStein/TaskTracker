@@ -7,9 +7,11 @@ import androidx.lifecycle.ViewModel;
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.repository.TaskListRepository;
-import com.axel_stein.tasktracker.ui.BaseViewAction;
 
 import org.reactivestreams.Subscription;
+
+import java.util.HashMap;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -18,13 +20,13 @@ import io.reactivex.FlowableSubscriber;
 import static com.axel_stein.tasktracker.ui.BaseViewState.STATE_SUCCESS;
 import static com.axel_stein.tasktracker.ui.edit_list.EditListViewState.error;
 import static com.axel_stein.tasktracker.ui.edit_list.EditListViewState.success;
-import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 import static java.util.Objects.requireNonNull;
 
 public class EditListViewModel extends ViewModel implements FlowableSubscriber<TaskList> {
     private MutableLiveData<EditListViewState> mData;
-    private MutableLiveData<BaseViewAction> mActions;
+    private HashMap<String, Boolean> mHashMap;
+    // private String mSrcName; todo
 
     @Inject
     TaskListRepository mRepository;
@@ -36,6 +38,7 @@ public class EditListViewModel extends ViewModel implements FlowableSubscriber<T
     public LiveData<EditListViewState> getData(String id) {
         if (mData == null) {
             mData = new MutableLiveData<>();
+            loadHashMap();
             if (isEmpty(id)) {
                 mData.postValue(success(new TaskList()));
             } else {
@@ -45,11 +48,31 @@ public class EditListViewModel extends ViewModel implements FlowableSubscriber<T
         return mData;
     }
 
-    public LiveData<BaseViewAction> getActions() {
-        if (mActions == null) {
-            mActions = new MutableLiveData<>();
-        }
-        return mActions;
+    private void loadHashMap() {
+        mHashMap = new HashMap<>();
+        mRepository.query().subscribe(new FlowableSubscriber<List<TaskList>>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                s.request(1);
+            }
+
+            @Override
+            public void onNext(List<TaskList> items) {
+                for (TaskList item : items) {
+                    mHashMap.put(item.getName(), true);
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                t.printStackTrace();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     @Override
@@ -71,11 +94,15 @@ public class EditListViewModel extends ViewModel implements FlowableSubscriber<T
     @Override
     public void onComplete() {}
 
-    public void setName(String name) {
+    public boolean setName(String name) {
         TaskList list = getList();
-        if (list != null && !contentEquals(name, list.getName())) {
-            list.setName(name);
+        if (list != null) {
+            if (mHashMap != null && !mHashMap.containsKey(name)) {
+                list.setName(name);
+                return true;
+            }
         }
+        return false;
     }
 
     public void setClosed(boolean closed) {
