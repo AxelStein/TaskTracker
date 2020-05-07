@@ -13,7 +13,7 @@
         android:id="@+id/menu_undo_complete"
         android:icon="@drawable/ic_done_all_24px"
         app:showAsAction="always"
-        android:title="@string/action_complete" />
+        android:title="@string/action_undo_complete" />
 
     <item
         android:id="@+id/menu_delete"
