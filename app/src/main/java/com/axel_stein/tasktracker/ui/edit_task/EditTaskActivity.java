@@ -217,7 +217,7 @@ public class EditTaskActivity extends AppCompatActivity implements SelectListDia
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_SUBJECT, mEditTitle.getText());
+        intent.putExtra(Intent.EXTRA_SUBJECT, mEditTitle.getText().toString());
 
         PackageManager pm = getPackageManager();
         if (pm != null) {
