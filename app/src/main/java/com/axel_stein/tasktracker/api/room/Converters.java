@@ -4,6 +4,7 @@ import androidx.room.TypeConverter;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 public class Converters {
 
@@ -24,6 +25,16 @@ public class Converters {
 
     @TypeConverter
     public static String fromLocalDate(LocalDate date) {
+        return date == null ? null : date.toString();
+    }
+
+    @TypeConverter
+    public static LocalTime toLocalTime(String value) {
+        return value == null ? null : new LocalTime(value);
+    }
+
+    @TypeConverter
+    public static String fromLocalTime(LocalTime date) {
         return date == null ? null : date.toString();
     }
 }

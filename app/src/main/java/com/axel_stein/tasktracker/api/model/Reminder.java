@@ -5,8 +5,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
@@ -25,8 +25,11 @@ public class Reminder {
     @ColumnInfo(name = "task_id")
     private String taskId;
 
-    @ColumnInfo(name = "date_time")
-    private DateTime dateTime;
+    @ColumnInfo
+    private LocalDate date;
+
+    @ColumnInfo
+    private LocalTime time;
 
     @ColumnInfo(name = "repeat_mode")
     private int repeatMode;
@@ -58,12 +61,20 @@ public class Reminder {
         this.taskId = taskId;
     }
 
-    public DateTime getDateTime() {
-        return dateTime;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setDateTime(DateTime dateTime) {
-        this.dateTime = dateTime;
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
+        this.time = time;
     }
 
     public int getRepeatMode() {
@@ -91,33 +102,32 @@ public class Reminder {
     }
 
     public void shiftDateTime() {
-        DateTime shifted = null;
+        LocalDate shifted = null;
         switch (repeatMode) {
             case REPEAT_MODE_DAY:
-                shifted = dateTime.plusDays(repeatCount);
+                shifted = date.plusDays(repeatCount);
                 break;
 
             case REPEAT_MODE_WEEK:
-                shifted = dateTime.plusWeeks(repeatCount);
+                shifted = date.plusWeeks(repeatCount);
                 break;
 
             case REPEAT_MODE_MONTH:
-                shifted = dateTime.plusMonths(repeatCount);
+                shifted = date.plusMonths(repeatCount);
                 break;
 
             case REPEAT_MODE_YEAR:
-                shifted = dateTime.plusYears(repeatCount);
+                shifted = date.plusYears(repeatCount);
                 break;
         }
 
         if (shifted != null) {
             if (repeatEndDate != null) {
-                DateTime end = repeatEndDate.toDateTimeAtStartOfDay();
-                if (shifted.isBefore(end)) {
-                    dateTime = shifted;
+                if (shifted.isBefore(repeatEndDate)) {
+                    date = shifted;
                 }
             } else {
-                dateTime = shifted;
+                date = shifted;
             }
         }
     }

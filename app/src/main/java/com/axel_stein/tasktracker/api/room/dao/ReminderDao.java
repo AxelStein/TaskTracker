@@ -7,8 +7,6 @@ import androidx.room.Update;
 
 import com.axel_stein.tasktracker.api.model.Reminder;
 
-import org.joda.time.DateTime;
-
 import java.util.List;
 
 @Dao
@@ -29,10 +27,11 @@ public interface ReminderDao {
     @Query("DELETE FROM reminders WHERE task_id = :taskId")
     void deleteTask(String taskId);
 
-    @Query("SELECT * FROM reminders ORDER BY date_time")
+    @Query("SELECT * FROM reminders ORDER BY date")
     List<Reminder> query();
-
-    @Query("SELECT * FROM reminders WHERE date_time = :dateTime ORDER BY date_time")
+    /*
+    @Query("SELECT * FROM reminders WHERE date = :dateTime ORDER BY date")
     List<Reminder> queryDateTime(DateTime dateTime);
+    */
 
 }

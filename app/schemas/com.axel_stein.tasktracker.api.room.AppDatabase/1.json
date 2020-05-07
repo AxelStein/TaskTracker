@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d03ee530576bcee1f186d10a53f1c003",
+    "identityHash": "da2d40ff5a808cb09543a46c50635c13",
     "entities": [
       {
         "tableName": "tasks",
@@ -174,7 +174,7 @@
       },
       {
         "tableName": "reminders",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `task_id` TEXT, `date_time` TEXT, `repeat_mode` INTEGER NOT NULL, `repeat_count` INTEGER NOT NULL, `repeat_end_date` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `task_id` TEXT, `date` TEXT, `time` TEXT, `repeat_mode` INTEGER NOT NULL, `repeat_count` INTEGER NOT NULL, `repeat_end_date` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -189,8 +189,14 @@
             "notNull": false
           },
           {
-            "fieldPath": "dateTime",
-            "columnName": "date_time",
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -226,7 +232,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd03ee530576bcee1f186d10a53f1c003')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'da2d40ff5a808cb09543a46c50635c13')"
     ]
   }
 }

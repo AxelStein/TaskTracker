@@ -31,6 +31,7 @@
     <string name="action_undo_complete">Undo complete</string>
     <string name="error_name_required">Name is required</string>
     <string name="error_name_exists">Name already exists</string>
+    <string name="repeat_every">Every</string>
     <string-array name="priority">
         <item>None</item>
         <item>Low</item>

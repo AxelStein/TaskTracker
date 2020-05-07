@@ -16,7 +16,7 @@ public class ReminderRepositoryTest extends RepositoryTest {
     @Test
     public void testInsert() {
         Reminder reminder = new Reminder();
-        reminder.setDateTime(new DateTime());
+        reminder.setDate(new DateTime());
         reminder.setTaskId(insertTestTask().getId());
 
         mReminderRepository.insert(reminder).test().assertComplete();
@@ -29,13 +29,13 @@ public class ReminderRepositoryTest extends RepositoryTest {
         mReminderRepository.insert(new Reminder()).test().assertError(IllegalArgumentException.class);
 
         Reminder reminder = new Reminder();
-        reminder.setDateTime(new DateTime());
+        reminder.setDate(new DateTime());
         reminder.setTaskId("id");
         mReminderRepository.insert(reminder).test().assertError(TaskNotFoundException.class);
 
         reminder = new Reminder();
         reminder.setTaskId(insertTestTask().getId());
-        reminder.setDateTime(null);
+        reminder.setDate(null);
         mReminderRepository.insert(reminder).test().assertError(IllegalArgumentException.class);
     }
 
@@ -54,18 +54,18 @@ public class ReminderRepositoryTest extends RepositoryTest {
 
         // test id
         Reminder reminder = new Reminder();
-        reminder.setDateTime(new DateTime());
+        reminder.setDate(new DateTime());
         mReminderRepository.update(reminder).test().assertError(IllegalArgumentException.class);
 
         reminder = new Reminder();
-        reminder.setDateTime(new DateTime());
+        reminder.setDate(new DateTime());
         reminder.setId("id");
         reminder.setTaskId(insertTestTask().getId());
         mReminderRepository.update(reminder).test().assertError(ReminderNotFoundException.class);
 
         // test date time
         reminder = insertTestReminder();
-        reminder.setDateTime(null);
+        reminder.setDate(null);
         mReminderRepository.update(reminder).test().assertError(IllegalArgumentException.class);
 
         // test task

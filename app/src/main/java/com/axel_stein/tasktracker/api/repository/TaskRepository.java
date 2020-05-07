@@ -272,8 +272,8 @@ public class TaskRepository {
             LocalDate today = new LocalDate();
             if (task.hasReminder()) {
                 Reminder reminder = mReminderDao.get(task.getReminderId());
-                DateTime dateTime = reminder.getDateTime();
-                LocalDate localDate = dateTime.toLocalDate();
+                LocalDate localDate = reminder.getDate();
+                DateTime dateTime = localDate.toDateTime(reminder.getTime());
                 task.setReminderPassed(localDate.isBefore(today));
 
                 String pattern;

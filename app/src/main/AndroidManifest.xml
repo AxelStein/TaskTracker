@@ -23,6 +23,7 @@
         <activity android:name=".ui.edit_task.EditTaskActivity" />
 
         <activity android:name=".ui.edit_list.EditListActivity"/>
+        <activity android:name=".ui.edit_reminder.EditReminderActivity" />
 
     </application>
 
