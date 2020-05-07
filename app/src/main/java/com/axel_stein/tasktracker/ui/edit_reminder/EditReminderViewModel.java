@@ -20,6 +20,7 @@ import io.reactivex.FlowableSubscriber;
 import static com.axel_stein.tasktracker.ui.BaseViewState.STATE_SUCCESS;
 import static com.axel_stein.tasktracker.ui.edit_reminder.EditReminderViewState.error;
 import static com.axel_stein.tasktracker.ui.edit_reminder.EditReminderViewState.success;
+import static com.axel_stein.tasktracker.ui.edit_task.EditTaskViewModel.invalidateTasks;
 import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 
@@ -110,9 +111,9 @@ public class EditReminderViewModel extends ViewModel implements FlowableSubscrib
         Reminder reminder = getReminder();
         if (reminder != null) {
             if (reminder.hasId()) {
-                mRepository.update(reminder).subscribe();
+                mRepository.update(reminder).subscribe(invalidateTasks());
             } else {
-                mRepository.insert(reminder).subscribe();
+                mRepository.insert(reminder).subscribe(invalidateTasks());
             }
         }
     }
