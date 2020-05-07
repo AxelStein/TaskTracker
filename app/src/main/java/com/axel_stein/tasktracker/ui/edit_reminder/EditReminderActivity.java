@@ -16,22 +16,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
-import com.axel_stein.tasktracker.utils.DateFormatter;
+import com.axel_stein.tasktracker.utils.DateTimeUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.ViewUtil;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
+import javax.inject.Inject;
+
 public class EditReminderActivity extends AppCompatActivity {
     private TextView mTextDate;
-    private View mBtnClearDate;
     private TextView mTextTime;
     private View mBtnClearTime;
     private EditReminderViewModel mViewModel;
-    private boolean mEnableDoneButton;
+
+    @Inject
+    DateTimeUtil mDateTimeUtil;
 
     /*
     private TextView mTextRepeat;
@@ -46,6 +50,7 @@ public class EditReminderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        App.getAppComponent().inject(this);
         setContentView(R.layout.activity_edit_reminder);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -60,9 +65,6 @@ public class EditReminderActivity extends AppCompatActivity {
         mTextDate = findViewById(R.id.text_date);
         mTextDate.setOnClickListener(v -> showDatePicker());
 
-        mBtnClearDate = findViewById(R.id.btn_clear_date);
-        mBtnClearDate.setOnClickListener(v -> mViewModel.setDate(null));
-
         mTextTime = findViewById(R.id.text_time);
         mTextTime.setOnClickListener(v -> showTimePicker());
 
@@ -75,25 +77,15 @@ public class EditReminderActivity extends AppCompatActivity {
         String reminderId = getIntent().getStringExtra(IntentActionFactory.EXTRA_REMINDER_ID);
         mViewModel.getReminderObserver(taskId, reminderId).observe(this, viewState -> {
             // todo
-        });
-
-        mViewModel.getDateObserver().observe(this, date -> {
-            String dateFormatted = null;
-            if (date != null) {
-                dateFormatted = DateFormatter.formatDate(getApplication(), date.toDateTimeAtStartOfDay().getMillis(), false);
-            }
-            mTextDate.setText(dateFormatted);
-            ViewUtil.setVisible(date != null, mBtnClearDate);
-            mEnableDoneButton = date != null;
             invalidateOptionsMenu();
         });
 
+        mViewModel.getDateObserver().observe(this, date -> {
+            mTextDate.setText(mDateTimeUtil.formatDate(date));
+        });
+
         mViewModel.getTimeObserver().observe(this, time -> {
-            String timeFormatted = null;
-            if (time != null) {
-                timeFormatted = DateFormatter.formatTime(getApplication(), time.toDateTimeToday().getMillis());
-            }
-            mTextTime.setText(timeFormatted);
+            mTextTime.setText(mDateTimeUtil.formatTime(time));
             ViewUtil.setVisible(time != null, mBtnClearTime);
         });
 
@@ -160,7 +152,6 @@ public class EditReminderActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_edit_reminder, menu);
         MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
         MenuUtil.show(menu, mViewModel.hasId(), R.id.menu_delete);
-        MenuUtil.enable(menu, mEnableDoneButton, R.id.menu_done);
         return super.onCreateOptionsMenu(menu);
     }
 

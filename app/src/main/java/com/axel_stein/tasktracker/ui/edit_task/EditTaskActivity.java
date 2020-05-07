@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.R;
+import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
@@ -32,6 +33,8 @@ import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
 import com.axel_stein.tasktracker.utils.ViewUtil;
 import com.google.android.material.snackbar.Snackbar;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
@@ -55,6 +58,7 @@ public class EditTaskActivity extends AppCompatActivity implements SelectListDia
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
+        Events.subscribe(this);
         setContentView(R.layout.activity_edit_task);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -163,9 +167,15 @@ public class EditTaskActivity extends AppCompatActivity implements SelectListDia
         });
     }
 
+    @Subscribe
+    public void invalidateEditTask(Events.InvalidateEditTask e) {
+        mViewModel.invalidate();
+    }
+
     @Override
     protected void onDestroy() {
         mEditTitle.removeTextChangedListener(mTextWatcher);
+        Events.unsubscribe(this);
         super.onDestroy();
     }
 

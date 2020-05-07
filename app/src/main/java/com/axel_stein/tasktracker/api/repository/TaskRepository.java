@@ -13,11 +13,13 @@ import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.api.room.dao.ReminderDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskListDao;
+import com.axel_stein.tasktracker.utils.DateTimeUtil;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
-import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -49,15 +51,17 @@ public class TaskRepository {
     private TaskListDao mListDao;
     private ReminderDao mReminderDao;
     private Locale mLocale;
-    private boolean m24HFormat;
+    private final boolean m24HFormat;
+    private DateTimeUtil mDateTimeUtil;
 
-    public TaskRepository(Context context, TaskDao dao, TaskListDao listDao, ReminderDao reminderDao) {
+    public TaskRepository(Context context, TaskDao dao, TaskListDao listDao, ReminderDao reminderDao, DateTimeUtil dateTimeUtil) {
         ACTION_INBOX = context.getString(R.string.action_inbox);
         mDao = requireNonNull(dao);
         mListDao = requireNonNull(listDao);
         mReminderDao = requireNonNull(reminderDao);
         m24HFormat = DateFormat.is24HourFormat(requireNonNull(context));
         mLocale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
+        mDateTimeUtil = dateTimeUtil;
     }
 
     public Single<Task> insert(final Task task) {
@@ -245,7 +249,7 @@ public class TaskRepository {
     }
 
     public DataSource.Factory<Integer, Task> queryInboxDataSource() {
-        return mDao.queryInbox().map(new TaskFunction());
+        return mDao.queryInbox().mapByPage(new SortTaskFunction()).map(new TaskFunction());
     }
 
     public DataSource.Factory<Integer, Task> queryCompletedDataSource() {
@@ -257,13 +261,51 @@ public class TaskRepository {
     }
 
     public DataSource.Factory<Integer, Task> queryTaskListDataSource(String listId) {
-        checkRules(notEmptyString(listId)); // todo listExists(mBookDao, bookId)
-        return mDao.queryList(listId).map(new TaskFunction());
+        checkRules(notEmptyString(listId));
+        // todo listExists(mBookDao, bookId)
+        return mDao.queryList(listId).mapByPage(new SortTaskFunction()).map(new TaskFunction());
     }
 
     public DataSource.Factory<Integer, Task> search(String query) {
         checkRules(notEmptyString(query));
         return mDao.search("%" + query + "%").map(new TaskFunction());
+    }
+
+    private class SortTaskFunction implements Function<List<Task>, List<Task>> { // todo delete
+
+        @Override
+        public List<Task> apply(List<Task> input) {
+            Collections.sort(input, (t1, t2) -> {
+                boolean hasReminder1 = t1.hasReminder();
+                boolean hasReminder2 = t2.hasReminder();
+                if (hasReminder1 && hasReminder2) {
+                    Reminder r1 = mReminderDao.get(t1.getReminderId());
+                    Reminder r2 = mReminderDao.get(t2.getReminderId());
+
+                    LocalDate date1 = r1.getDate();
+                    LocalDate date2 = r2.getDate();
+
+                    if (date1.equals(date2)) {
+                        LocalTime time1 = r1.getTime();
+                        LocalTime time2 = r2.getTime();
+                        if (time1 != null && time2 != null) {
+                            return time1.compareTo(time2);
+                        } else if (time1 != null) {
+                            return -1;
+                        } else {
+                            return 1;
+                        }
+                    } else {
+                        return date1.compareTo(date2);
+                    }
+                } else if (hasReminder1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+            return input;
+        }
     }
 
     private class TaskFunction implements Function<Task, Task> {
@@ -282,34 +324,18 @@ public class TaskRepository {
             if (task.hasReminder()) {
                 Reminder reminder = mReminderDao.get(task.getReminderId());
                 LocalDate localDate = reminder.getDate();
-                DateTime dateTime = localDate.toDateTime(reminder.getTime());
+                LocalTime localTime = reminder.getTime();
                 task.setReminderPassed(localDate.isBefore(today));
 
-                String pattern;
+                String reminderFormatted;
                 if (mFullFormat) {
-                    pattern = "d MMM";
-                    if (!localDate.year().equals(today.year())) {
-                        pattern += " yyyy";
-                    }
-                    pattern += " at h:mm";
-                    if (m24HFormat) {
-                        pattern += " aa";
-                    }
+                    reminderFormatted = mDateTimeUtil.formatDateTime(localDate, localTime);
+                } else if (localDate.equals(today) && localTime != null) {
+                    reminderFormatted = mDateTimeUtil.formatTime(localTime);
                 } else {
-                    if (localDate.equals(today)) {
-                        pattern = "H:mm";
-                        if (m24HFormat) {
-                            pattern += " aa";
-                        }
-                    } else if (localDate.year().equals(today.year())) {
-                        pattern = "d MMM";
-                    } else {
-                        pattern = "d MMM yyyy";
-                    }
+                    reminderFormatted = mDateTimeUtil.formatDate(localDate);
                 }
-
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, mLocale);
-                task.setReminderFormatted(simpleDateFormat.format(dateTime.toDate()).toLowerCase());
+                task.setReminderFormatted(reminderFormatted);
             }
 
             String listId = task.getListId();

@@ -127,6 +127,7 @@ public class TasksAdapter extends PagedListAdapter<Task, TasksAdapter.ViewHolder
             ViewUtil.setVisible(task.hasReminder(), mTextReminder);
             if (task.hasReminder()) {
                 mTextReminder.setText(task.getReminderFormatted());
+                mTextReminder.setSelected(task.isReminderPassed());
             }
         }
 

@@ -11,6 +11,7 @@ import com.axel_stein.tasktracker.api.repository.ReminderRepository;
 import com.axel_stein.tasktracker.api.repository.TaskRepository;
 import com.axel_stein.tasktracker.api.room.AppDatabase;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
+import com.axel_stein.tasktracker.utils.DateTimeUtil;
 
 import javax.inject.Singleton;
 
@@ -39,8 +40,8 @@ public class AppModule {
 
     @Provides
     @Singleton
-    TaskRepository provideTaskRepository(App app, AppDatabase db) {
-        return new TaskRepository(app, db.getTaskDao(), db.getListDao(), db.getReminderDao());
+    TaskRepository provideTaskRepository(App app, AppDatabase db, DateTimeUtil dateTimeUtil) {
+        return new TaskRepository(app, db.getTaskDao(), db.getListDao(), db.getReminderDao(), dateTimeUtil);
     }
 
     @Provides
@@ -74,6 +75,12 @@ public class AppModule {
     @Provides
     IntentActionFactory provideIntentActionFactory(App app) {
         return new IntentActionFactory(app);
+    }
+
+    @Provides
+    @Singleton
+    DateTimeUtil provideDateTimeUtil(App app) {
+        return new DateTimeUtil(app);
     }
 
 }

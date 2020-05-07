@@ -1,11 +1,13 @@
 package com.axel_stein.tasktracker.ui.edit_list;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ import static android.text.TextUtils.isEmpty;
 import static com.axel_stein.tasktracker.ui.IntentActionFactory.EXTRA_LIST_ID;
 
 public class EditListActivity extends AppCompatActivity {
+    private View mFocusView;
     private EditText mEditName;
     private TextView mTextError;
     private IconTextView mTextColor;
@@ -62,6 +65,7 @@ public class EditListActivity extends AppCompatActivity {
                 invalidateOptionsMenu();
             }
         };
+        mFocusView = findViewById(R.id.focus_view);
         mEditName = findViewById(R.id.edit_name);
         mTextError = findViewById(R.id.text_error);
         mTextColor = findViewById(R.id.text_color);
@@ -94,6 +98,41 @@ public class EditListActivity extends AppCompatActivity {
                     break;
             }
         });
+
+        final View viewMain = findViewById(R.id.coordinator);
+        viewMain.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect r = new Rect();
+            viewMain.getWindowVisibleDisplayFrame(r);
+            int screenHeight = viewMain.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+            if (keypadHeight > screenHeight * 0.15) {
+                // 0.15 ratio is perhaps enough to determine keypad height.
+                // keyboard is opened
+                if (!isKeyboardShowing) {
+                    isKeyboardShowing = true;
+                    onKeyboardVisibilityChanged(true);
+                }
+            } else {
+                // keyboard is closed
+                if (isKeyboardShowing) {
+                    isKeyboardShowing = false;
+                    onKeyboardVisibilityChanged(false);
+                }
+            }
+        });
+    }
+
+    private boolean isKeyboardShowing = false;
+    private void onKeyboardVisibilityChanged(boolean opened) {
+        if (!opened) {
+            hideKeyboard();
+        }
+    }
+
+    public void hideKeyboard() {
+        if (!mFocusView.hasFocus()) {
+            mFocusView.requestFocus();
+        }
     }
 
     private boolean setErrorText(boolean set, int textResId) {

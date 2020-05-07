@@ -19,10 +19,16 @@ public class Events {
         getBus().post(new InvalidateTasks());
     }
 
+    public static void invalidateEditTask() {
+        getBus().post(new InvalidateEditTask());
+    }
+
     private static EventBus getBus() {
         return EventBus.getDefault();
     }
 
     public static class InvalidateTasks {}
+
+    public static class InvalidateEditTask {}
 
 }

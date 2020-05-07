@@ -60,6 +60,13 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
         mData.postValue(error(t));
     }
 
+    public void invalidate() {
+        Task task = getTask();
+        if (task != null) {
+            loadData(task.getId(), null);
+        }
+    }
+
     @Nullable
     private Task getTask() {
         EditTaskViewState viewState = mData.getValue();
@@ -145,7 +152,7 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
         }
     }
 
-    public static CompletableObserver invalidateTasks() {
+    private static CompletableObserver invalidateTasks() {
         return new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {}

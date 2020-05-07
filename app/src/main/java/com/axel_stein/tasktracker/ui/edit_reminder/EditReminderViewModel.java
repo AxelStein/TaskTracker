@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.axel_stein.tasktracker.App;
+import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.repository.ReminderRepository;
 
@@ -15,12 +16,13 @@ import org.reactivestreams.Subscription;
 
 import javax.inject.Inject;
 
+import io.reactivex.CompletableObserver;
 import io.reactivex.FlowableSubscriber;
+import io.reactivex.disposables.Disposable;
 
 import static com.axel_stein.tasktracker.ui.BaseViewState.STATE_SUCCESS;
 import static com.axel_stein.tasktracker.ui.edit_reminder.EditReminderViewState.error;
 import static com.axel_stein.tasktracker.ui.edit_reminder.EditReminderViewState.success;
-import static com.axel_stein.tasktracker.ui.edit_task.EditTaskViewModel.invalidateTasks;
 import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 
@@ -46,6 +48,7 @@ public class EditReminderViewModel extends ViewModel implements FlowableSubscrib
         if (isEmpty(reminderId)) {
             Reminder reminder = new Reminder();
             reminder.setTaskId(taskId);
+            reminder.setDate(new LocalDate());
             onNext(reminder);
         } else if (!contentEquals(mReminderId, reminderId)) {
             mReminderId = reminderId;
@@ -121,8 +124,26 @@ public class EditReminderViewModel extends ViewModel implements FlowableSubscrib
     public void delete() {
         Reminder reminder = getReminder();
         if (reminder != null) {
-            mRepository.delete(reminder).subscribe();
+            mRepository.delete(reminder).subscribe(invalidateTasks());
         }
+    }
+
+    private static CompletableObserver invalidateTasks() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {}
+
+            @Override
+            public void onComplete() {
+                Events.invalidateEditTask();
+                Events.invalidateTasks();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                e.printStackTrace();
+            }
+        };
     }
 
     private Reminder getReminder() {
@@ -134,6 +155,7 @@ public class EditReminderViewModel extends ViewModel implements FlowableSubscrib
     }
 
     public boolean hasId() {
-        return false;
+        Reminder reminder = getReminder();
+        return reminder != null && reminder.hasId();
     }
 }

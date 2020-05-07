@@ -77,10 +77,10 @@ public abstract class TaskDao {
     public abstract List<Task> query();
 
     @Query("SELECT * FROM tasks WHERE (list_id IS NULL OR list_id = '') AND trashed = 0 AND completed = 0 " +
-            "ORDER BY priority DESC, title ASC, reminder_id DESC")
+            "ORDER BY priority DESC, title ASC")
     public abstract DataSource.Factory<Integer, Task> queryInbox();
 
-    @Query("SELECT * FROM tasks WHERE list_id = :listId AND trashed = 0 AND completed = 0 ORDER BY priority DESC, title ASC, reminder_id DESC")
+    @Query("SELECT * FROM tasks WHERE list_id = :listId AND trashed = 0 AND completed = 0 ORDER BY priority DESC, title ASC")
     public abstract DataSource.Factory<Integer, Task> queryList(String listId);
 
     @Query("SELECT * FROM tasks WHERE completed = 1 AND trashed = 0 ORDER BY completed_date_time DESC")
