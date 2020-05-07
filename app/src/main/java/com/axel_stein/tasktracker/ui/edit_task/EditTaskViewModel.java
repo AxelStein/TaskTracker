@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.repository.TaskRepository;
 
 import javax.inject.Inject;
@@ -146,12 +147,31 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
         }
     }
 
+    public void setList(TaskList list) {
+        Task task = getTask();
+        if (task != null && !task.isTrashed() && !contentEquals(task.getListId(), list.getId())) {
+            mRepository.setListId(task.getId(), list.getId()).subscribe(new CompletableObserver() {
+                @Override
+                public void onSubscribe(Disposable d) {}
+
+                @Override
+                public void onComplete() {
+                    Events.invalidateTasks();
+                    loadData(task.getId(), null);
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+
     private static CompletableObserver observe() {
         return new CompletableObserver() {
             @Override
-            public void onSubscribe(Disposable d) {
-
-            }
+            public void onSubscribe(Disposable d) {}
 
             @Override
             public void onComplete() {

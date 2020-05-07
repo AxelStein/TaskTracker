@@ -24,6 +24,8 @@
         android:orientation="vertical"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -39,6 +41,19 @@
             android:inputType="textCapSentences|textMultiLine|textNoSuggestions"
             android:textSize="16sp"
             tools:text="10 Best Note Apps for iPhone You Can Use"/>
+
+        <TextView
+            android:id="@+id/text_error"
+            tools:text="@string/error_name_exists"
+            tools:visibility="visible"
+            android:textColor="@color/text_color_error"
+            android:textSize="12sp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <View
             android:layout_width="match_parent"

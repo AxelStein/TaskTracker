@@ -6,6 +6,8 @@ import com.axel_stein.tasktracker.api.room.dao.ReminderDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskDao;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import java.util.UUID;
 
@@ -40,10 +42,10 @@ public class ReminderRepository {
             checkRules(notNull(reminder));
 
             String taskId = reminder.getTaskId();
-            DateTime dateTime = reminder.getDateTime();
+            LocalDate date = reminder.getDate();
 
             checkRules(
-                    notNull(dateTime),
+                    notNull(date),
                     notEmptyString(taskId),
                     taskExists(mTaskDao, taskId)
             );
@@ -51,7 +53,12 @@ public class ReminderRepository {
             if (isEmpty(reminder.getId())) reminder.setId(UUID.randomUUID().toString());
             mDao.insert(reminder);
             mTaskDao.setReminderId(taskId, reminder.getId());
-            mReminderScheduler.schedule(taskId, dateTime.getMillis());
+
+            LocalTime time = reminder.getTime();
+            if (time != null) {
+                DateTime dateTime = date.toDateTime(time);
+                mReminderScheduler.schedule(taskId, dateTime.getMillis());
+            }
         });
     }
 
@@ -61,11 +68,11 @@ public class ReminderRepository {
 
             String id = reminder.getId();
             String taskId = reminder.getTaskId();
-            DateTime dateTime = reminder.getDateTime();
+            LocalDate date = reminder.getDate();
 
             checkRules(
                     notEmptyString(id, taskId),
-                    notNull(dateTime),
+                    notNull(date),
                     inRange(reminder.getRepeatMode(), Reminder.REPEAT_MODE_NONE, Reminder.REPEAT_MODE_YEAR),
                     greaterOrEqualsZero(reminder.getRepeatCount()),
                     reminderExists(mDao, id),
@@ -74,7 +81,12 @@ public class ReminderRepository {
 
             mDao.update(reminder);
             mTaskDao.setReminderId(taskId, id);
-            mReminderScheduler.schedule(id, dateTime.getMillis());
+
+            LocalTime time = reminder.getTime();
+            if (time != null) {
+                DateTime dateTime = date.toDateTime(time);
+                mReminderScheduler.schedule(taskId, dateTime.getMillis());
+            }
         });
     }
 

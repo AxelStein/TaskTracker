@@ -1,9 +1,9 @@
 package com.axel_stein.tasktracker.api.repository;
 
 import com.axel_stein.tasktracker.api.model.TaskList;
-import com.axel_stein.tasktracker.api.room.dao.TaskListDao;
 import com.axel_stein.tasktracker.api.room.dao.FolderDao;
 import com.axel_stein.tasktracker.api.room.dao.TaskDao;
+import com.axel_stein.tasktracker.api.room.dao.TaskListDao;
 import com.axel_stein.tasktracker.utils.LogUtil;
 
 import java.util.List;
@@ -13,13 +13,14 @@ import java.util.UUID;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
-import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskListExists;
-import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskListNotClosed;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.completable;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.flowable;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.folderExists;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.single;
+import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskListExists;
+import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskListNotClosed;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.checkRules;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.checkRulesSilent;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.notEmptyString;
@@ -135,13 +136,11 @@ public class TaskListRepository {
     }
 
     public Flowable<List<TaskList>> query() {
-        return flowable(() -> {
-            List<TaskList> lists = mDao.query();
-            for (TaskList l : lists) {
-                l.setFolderName(mFolderDao.getName(l.getFolderId()));
+        return mDao.query().doOnNext(items -> {
+            for (TaskList item : items) {
+                item.setFolderName(mFolderDao.getName(item.getFolderId()));
             }
-            return lists;
-        });
+        }).observeOn(AndroidSchedulers.mainThread());
     }
 
     public Completable delete(final String id) {

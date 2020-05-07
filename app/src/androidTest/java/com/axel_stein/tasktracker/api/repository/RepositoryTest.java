@@ -44,7 +44,7 @@ public class RepositoryTest extends AndroidTest {
 
     protected Reminder insertTestReminder(@NonNull DateTime dateTime) {
         Reminder reminder = new Reminder();
-        reminder.setDateTime(dateTime);
+        reminder.setDate(dateTime);
         reminder.setTaskId(insertTestTask().getId());
         mReminderRepository.insert(reminder).subscribe();
         return reminder;

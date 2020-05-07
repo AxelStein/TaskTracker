@@ -3,10 +3,12 @@ package com.axel_stein.tasktracker.ui.edit_list;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,19 +17,25 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.TaskList;
+import com.axel_stein.tasktracker.utils.KeyboardUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
 import com.axel_stein.tasktracker.utils.TextUtil;
+import com.axel_stein.tasktracker.utils.ViewUtil;
 import com.axel_stein.tasktracker.views.IconTextView;
 import com.google.android.material.snackbar.Snackbar;
 
+import static android.text.TextUtils.isEmpty;
 import static com.axel_stein.tasktracker.ui.IntentActionFactory.EXTRA_LIST_ID;
 
 public class EditListActivity extends AppCompatActivity {
     private EditText mEditName;
+    private TextView mTextError;
     private IconTextView mTextColor;
     private Switch mSwitchClose;
     private EditListViewModel mViewModel;
+    private TextWatcher mTextWatcher;
+    private boolean mEnableDoneButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +51,19 @@ public class EditListActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
-        mEditName = findViewById(R.id.edit_name);
-        mEditName.addTextChangedListener(new SimpleTextWatcher() {
+        mTextWatcher = new SimpleTextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                mViewModel.setName(s.toString());
+                boolean empty = setErrorText(isEmpty(s), R.string.error_name_required);
+                boolean exists = setErrorText(!mViewModel.setName(s.toString()), R.string.error_name_exists);
+                ViewUtil.setVisible(empty || exists, mTextError);
+
+                mEnableDoneButton = !empty && !exists;
+                invalidateOptionsMenu();
             }
-        });
+        };
+        mEditName = findViewById(R.id.edit_name);
+        mTextError = findViewById(R.id.text_error);
         mTextColor = findViewById(R.id.text_color);
         mSwitchClose = findViewById(R.id.switch_close);
         mSwitchClose.setOnCheckedChangeListener((v, checked) -> mViewModel.setClosed(checked));
@@ -65,8 +79,11 @@ public class EditListActivity extends AppCompatActivity {
                     mEditName.setSelection(TextUtil.length(mEditName.getText()));
                     if (mEditName.getText().length() == 0) {
                         mEditName.requestFocus();
-                        // todo Keyboard util
+                        KeyboardUtil.show(mEditName);
+                    } else {
+                        mEditName.clearFocus();
                     }
+                    mEditName.addTextChangedListener(mTextWatcher);
                     mTextColor.setIconRightTintColor(list.getColor());
                     mSwitchClose.setChecked(list.isClosed());
                     invalidateOptionsMenu();
@@ -79,11 +96,25 @@ public class EditListActivity extends AppCompatActivity {
         });
     }
 
+    private boolean setErrorText(boolean set, int textResId) {
+        if (set) {
+            mTextError.setText(textResId);
+        }
+        return set;
+    }
+
+    @Override
+    protected void onDestroy() {
+        mEditName.removeTextChangedListener(mTextWatcher);
+        super.onDestroy();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit_list, menu);
         MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
         MenuUtil.show(menu, mViewModel.hasId(), R.id.menu_delete);
+        MenuUtil.enable(menu, mEnableDoneButton, R.id.menu_done);
         return true;
     }
 

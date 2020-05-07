@@ -29,6 +29,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.completable;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.flowable;
+import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.reminderExists;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.single;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskExists;
 import static com.axel_stein.tasktracker.api.repository.RepositoryUtil.taskListExists;
@@ -38,6 +39,7 @@ import static com.axel_stein.tasktracker.utils.ArgsUtil.inRange;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.notEmptyString;
 import static com.axel_stein.tasktracker.utils.ArgsUtil.notNull;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
+import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 import static java.util.Objects.requireNonNull;
 
 public class TaskRepository {
@@ -58,11 +60,18 @@ public class TaskRepository {
         mLocale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
     }
 
-    public Completable insert(final Task task) {
-        return completable(() -> {
+    public Single<Task> insert(final Task task) {
+        return single(() -> {
             checkRules(notNull(task));
+            if (notEmpty(task.getListId())) {
+                checkRules(taskListExists(mListDao, task.getListId()));
+            }
+            if (notEmpty(task.getReminderId())) {
+                checkRules(reminderExists(mReminderDao, task.getReminderId()));
+            }
             if (isEmpty(task.getId())) task.setId(UUID.randomUUID().toString());
             mDao.insert(task);
+            return task;
         });
     }
 
@@ -72,6 +81,12 @@ public class TaskRepository {
                     notNull(task),
                     notEmptyString(task.getId())
             );
+            if (notEmpty(task.getListId())) {
+                checkRules(taskListExists(mListDao, task.getListId()));
+            }
+            if (notEmpty(task.getReminderId())) {
+                checkRules(reminderExists(mReminderDao, task.getReminderId()));
+            }
             mDao.update(task);
         });
     }
@@ -98,15 +113,17 @@ public class TaskRepository {
         });
     }
 
-    public Completable setListId(final String id, final String bookId) {
+    public Completable setListId(final String id, final String listId) {
         return completable(() -> {
             checkRules(
-                    notEmptyString(id, bookId),
+                    notEmptyString(id),
                     taskExists(mDao, id),
-                    taskNotTrashed(mDao, id),
-                    taskListExists(mListDao, bookId)
+                    taskNotTrashed(mDao, id)
             );
-            mDao.setListId(id, bookId);
+            if (notEmpty(listId)) {
+                checkRules(taskListExists(mListDao, listId));
+            }
+            mDao.setListId(id, listId);
         });
     }
 
@@ -184,17 +201,25 @@ public class TaskRepository {
         });
     }
 
+    public void emptyTrash() {
+        Single.fromCallable(() -> mDao.queryTrashedList())
+                .subscribeOn(Schedulers.io())
+                .toObservable()
+                .flatMapIterable(items -> items)
+                .flatMapCompletable(task -> delete(task.getId()))
+                .subscribe();
+    }
+
     public Single<Task> getOrInsert(final String id, final String listId) { // fixme not tested
-        return single(() -> {
-            if (isEmpty(id)) {
-                Task task = new Task();
-                task.setListId(listId);
-                task.setId(UUID.randomUUID().toString());
-                mDao.insert(task);
-                return task;
-            }
-            return mDao.get(id);
-        }).flatMap(task -> Single.fromCallable(() -> new TaskFunction().apply(task)).subscribeOn(Schedulers.io()));
+        Single<Task> single;
+        if (isEmpty(id)) {
+            Task task = new Task();
+            task.setListId(listId);
+            single = insert(task);
+        } else {
+            single = get(id);
+        }
+        return single.flatMap(task -> Single.fromCallable(() -> new TaskFunction().apply(task)).subscribeOn(Schedulers.io()));
     }
 
     public Single<Task> get(final String id) {
@@ -204,7 +229,7 @@ public class TaskRepository {
                     taskExists(mDao, id)
             );
             return mDao.get(id);
-        }).flatMap(task -> Single.fromCallable(() -> new TaskFunction().apply(task)).subscribeOn(Schedulers.io()));
+        });
     }
 
     public Completable duplicate(Task task) {
@@ -247,8 +272,8 @@ public class TaskRepository {
             LocalDate today = new LocalDate();
             if (task.hasReminder()) {
                 Reminder reminder = mReminderDao.get(task.getReminderId());
-                DateTime dateTime = reminder.getDateTime();
-                LocalDate localDate = dateTime.toLocalDate();
+                LocalDate localDate = reminder.getDate();
+                DateTime dateTime = localDate.toDateTime(reminder.getTime());
                 task.setReminderPassed(localDate.isBefore(today));
 
                 String pattern;

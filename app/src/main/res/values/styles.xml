@@ -12,6 +12,7 @@
         <item name="actionModeStyle">@style/AppTheme.ActionMode</item>
         <item name="colorControlNormal">@color/text_color_primary_light</item>
         <item name="menuItemTintColor">@color/text_color_primary_light</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogLight</item>
         <!--<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>-->
     </style>
 
@@ -25,10 +26,12 @@
         <item name="reminderTint">@color/reminder_tint_dark</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">?attr/colorPrimary</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_clear_24px</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_clear_white_24px</item>
         <item name="actionModeStyle">@style/AppThemeDark.ActionMode</item>
         <item name="colorControlNormal">@color/text_color_primary_dark</item>
         <item name="menuItemTintColor">@color/text_color_primary_dark</item>
+        <item name="alertDialogTheme">@style/DialogThemeDark</item>
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialogDark</item>
     </style>
 
     <!--<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />-->
@@ -37,11 +40,11 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AppTheme.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="height">48dp</item>
+        <item name="height">?attr/actionBarSize</item>
     </style>
 
     <style name="AppThemeDark.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="height">48dp</item>
+        <item name="height">?attr/actionBarSize</item>
     </style>
 
     <style name="AppThemeDark.NoActionBar">
@@ -52,5 +55,27 @@
     <style name="AppThemeDark.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppThemeDark.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="BottomSheetDialogLight" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetModalLight</item>
+    </style>
+
+    <style name="BottomSheetModalLight" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@color/window_background_light</item>
+        <!--<item name="behavior_peekHeight">900dp</item>-->
+    </style>
+
+    <style name="BottomSheetDialogDark" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetModalDark</item>
+    </style>
+
+    <style name="BottomSheetModalDark" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@color/window_background_dark</item> <!--#ff424242-->
+        <!--<item name="behavior_peekHeight">900dp</item>-->
+    </style>
+
+    <style name="DialogThemeDark" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@color/window_background_dark</item>
+    </style>
 
 </resources>

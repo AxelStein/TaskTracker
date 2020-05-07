@@ -8,19 +8,22 @@ import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 
 import com.axel_stein.tasktracker.App;
+import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.repository.TaskListRepository;
 import com.axel_stein.tasktracker.api.repository.TaskRepository;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 public abstract class TasksViewModel extends ViewModel {
     private LiveData<PagedList<Task>> mTaskList;
-    private MutableLiveData<Integer> mSelectionCount;
-    private HashMap<String, Boolean> mHashMap;
+    private MutableLiveData<OnTaskCheckListener> mOnTaskCheckListener;
+    private HashMap<String, Boolean> mHashMap; // fixme change name
 
     @Inject
     TaskRepository mRepository;
@@ -34,26 +37,26 @@ public abstract class TasksViewModel extends ViewModel {
     public TasksViewModel() {
         App.getAppComponent().inject(this);
         mHashMap = new HashMap<>();
-        mSelectionCount = new MutableLiveData<>();
+        mOnTaskCheckListener = new MutableLiveData<>();
     }
 
-    public LiveData<Integer> getSelectionCount() {
-        return mSelectionCount;
+    public LiveData<OnTaskCheckListener> getOnTaskCheckListener() {
+        return mOnTaskCheckListener;
     }
 
-    public void onTaskClick(Task task) {
+    public void onTaskClick(int pos, Task task) {
         if (mHashMap.size() > 0) {
-            selectTask(task);
+            checkTask(pos, task);
         } else {
             mIntentActionFactory.editTask(task.getId());
         }
     }
 
-    public void onTaskLongClick(Task task) {
-        selectTask(task);
+    public void onTaskLongClick(int pos, Task task) {
+        checkTask(pos, task);
     }
 
-    public void selectTask(Task task) {
+    public void checkTask(int pos, Task task) {
         String id = task.getId();
         boolean hasKey = mHashMap.containsKey(id);
         if (hasKey) {
@@ -61,11 +64,77 @@ public abstract class TasksViewModel extends ViewModel {
         } else {
             mHashMap.put(id, true);
         }
-        mSelectionCount.postValue(mHashMap.size());
+        mOnTaskCheckListener.postValue(new OnTaskCheckListener() {
+            @Override
+            public HashMap<String, Boolean> getHashMap() {
+                return mHashMap;
+            }
+
+            @Override
+            public int getPos() {
+                return pos;
+            }
+
+            @Override
+            public int getCount() {
+                return mHashMap.size();
+            }
+        });
+    }
+
+    public void clearCheckedTasks() {
+        mHashMap.clear();
+    }
+
+    private void checkAllTasks() { // fixme
+        PagedList<Task> list = mTaskList.getValue();
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                Task task = list.get(i);
+                if (task != null) {
+                    checkTask(i, task);
+                }
+            }
+        }
+    }
+
+    public void completeCheckedTasks(boolean completed) {
+        Set<String> ids = mHashMap.keySet();
+        for (String id : ids) {
+            mRepository.setCompleted(id, completed).subscribe();
+        }
+    }
+
+    public void deleteCheckedTasks() {
+        Set<String> ids = mHashMap.keySet();
+        for (String id : ids) {
+            mRepository.setTrashed(id, true).subscribe();
+        }
+    }
+
+    public void restoreCheckedTasks() {
+        Set<String> ids = mHashMap.keySet();
+        for (String id : ids) {
+            mRepository.setTrashed(id, false).subscribe();
+        }
+    }
+
+    public void deleteForeverCheckedTasks() { // todo confirmation
+        Set<String> ids = mHashMap.keySet();
+        for (String id : ids) {
+            mRepository.delete(id).subscribe();
+        }
+    }
+
+    public void setListForCheckedTasks(TaskList list) {
+        Set<String> ids = mHashMap.keySet();
+        for (String id : ids) {
+            mRepository.setListId(id, list.getId()).subscribe();
+        }
     }
 
     public void setCompleted(Task task) {
-        if (!task.isTrashed()) {
+        if (mHashMap.size() == 0 && !task.isTrashed()) {
             mRepository.setCompleted(task, !task.isCompleted()).subscribe();
         }
     }
@@ -92,9 +161,39 @@ public abstract class TasksViewModel extends ViewModel {
     }
 
     public int getCheckModeMenuResId() {
-        return 0;
+        return R.menu.menu_action_mode_tasks;
     }
 
     public void onMenuItemClick(int itemId) {}
+
+    public void onActionItemClick(int itemId) {
+        switch (itemId) {
+            case R.id.menu_check_all:
+                checkAllTasks();
+                break;
+
+            case R.id.menu_complete:
+                completeCheckedTasks(true);
+                break;
+
+            case R.id.menu_delete:
+                deleteCheckedTasks();
+                break;
+
+            case R.id.menu_restore:
+                restoreCheckedTasks();
+                break;
+
+            case R.id.menu_delete_forever:
+                deleteForeverCheckedTasks();
+                break;
+        }
+    }
+
+    public interface OnTaskCheckListener {
+        HashMap<String, Boolean> getHashMap();
+        int getPos();
+        int getCount();
+    }
 
 }

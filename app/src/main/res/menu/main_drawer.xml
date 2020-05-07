@@ -31,7 +31,7 @@
             android:icon="@drawable/ic_add_box_24px"
             android:orderInCategory="1"
             android:checkable="false"
-            android:title="Add list"/>
+            android:title="@string/action_add_list"/>
 
     </group>
 
