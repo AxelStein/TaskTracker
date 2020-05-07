@@ -32,6 +32,9 @@
     <string name="error_name_required">Name is required</string>
     <string name="error_name_exists">Name already exists</string>
     <string name="repeat_every">Every</string>
+    <string name="hint_set_time">Set time</string>
+    <string name="hint_set_date">Set date</string>
+    <string name="hint_set_reminder">Set reminder</string>
     <string-array name="priority">
         <item>None</item>
         <item>Low</item>

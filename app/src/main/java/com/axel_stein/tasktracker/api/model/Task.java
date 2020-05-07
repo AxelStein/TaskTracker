@@ -52,7 +52,7 @@ public class Task implements Cloneable {
     private String reminderId;
 
     @Ignore
-    private String dateTimeFormatted;
+    private String reminderFormatted;
 
     @Ignore
     private boolean reminderPassed;
@@ -77,7 +77,7 @@ public class Task implements Cloneable {
         trashedDateTime = from.trashedDateTime;
         listId = from.listId;
         reminderId = from.reminderId;
-        dateTimeFormatted = from.dateTimeFormatted;
+        reminderFormatted = from.reminderFormatted;
         reminderPassed = from.reminderPassed;
         listName = from.listName;
         color = from.color;
@@ -190,12 +190,12 @@ public class Task implements Cloneable {
         this.reminderId = reminderId;
     }
 
-    public String getDateTimeFormatted() {
-        return dateTimeFormatted;
+    public String getReminderFormatted() {
+        return reminderFormatted;
     }
 
-    public void setDateTimeFormatted(String dateTimeFormatted) {
-        this.dateTimeFormatted = dateTimeFormatted;
+    public void setReminderFormatted(String reminderFormatted) {
+        this.reminderFormatted = reminderFormatted;
     }
 
     public boolean isReminderPassed() {

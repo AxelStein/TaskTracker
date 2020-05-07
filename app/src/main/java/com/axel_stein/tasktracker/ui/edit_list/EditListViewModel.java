@@ -20,7 +20,6 @@ import io.reactivex.FlowableSubscriber;
 import static com.axel_stein.tasktracker.ui.BaseViewState.STATE_SUCCESS;
 import static com.axel_stein.tasktracker.ui.edit_list.EditListViewState.error;
 import static com.axel_stein.tasktracker.ui.edit_list.EditListViewState.success;
-import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 import static java.util.Objects.requireNonNull;
 
@@ -86,6 +85,11 @@ public class EditListViewModel extends ViewModel implements FlowableSubscriber<T
         mData.postValue(success(list));
     }
 
+    @Override
+    public void onError(Throwable t) {
+        mData.postValue(error(t));
+    }
+
     private TaskList getList() {
         EditListViewState state = mData.getValue();
         if (state != null && state.getState() == STATE_SUCCESS) {
@@ -138,14 +142,6 @@ public class EditListViewModel extends ViewModel implements FlowableSubscriber<T
     public boolean hasId() {
         TaskList list = getList();
         return list != null && list.hasId();
-    }
-
-    private TaskList getList() {
-        EditListViewState state = mData.getValue();
-        if (state != null && state.getState() == STATE_SUCCESS) {
-            return state.getData();
-        }
-        return null;
     }
 
 }

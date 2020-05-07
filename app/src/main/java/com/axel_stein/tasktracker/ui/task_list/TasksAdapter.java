@@ -106,12 +106,14 @@ public class TasksAdapter extends PagedListAdapter<Task, TasksAdapter.ViewHolder
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView mCheckBox;
         TextView mTextTitle;
+        TextView mTextReminder;
         View mForeground;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             mCheckBox = itemView.findViewById(R.id.check_box_completed);
             mTextTitle = itemView.findViewById(R.id.text_title);
+            mTextReminder = itemView.findViewById(R.id.text_reminder);
             mForeground = itemView.findViewById(R.id.foreground);
         }
 
@@ -122,6 +124,10 @@ public class TasksAdapter extends PagedListAdapter<Task, TasksAdapter.ViewHolder
                 mCheckBox.setColorFilter(colors[task.getPriority()], SRC_IN);
             }
             ViewUtil.setVisible(hashMap != null && checkBoolean(hashMap.get(task.getId())), mForeground);
+            ViewUtil.setVisible(task.hasReminder(), mTextReminder);
+            if (task.hasReminder()) {
+                mTextReminder.setText(task.getReminderFormatted());
+            }
         }
 
         boolean checkBoolean(Boolean val) {

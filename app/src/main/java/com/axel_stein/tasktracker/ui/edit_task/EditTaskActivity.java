@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.api.model.TaskList;
@@ -31,6 +32,8 @@ import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
 import com.axel_stein.tasktracker.utils.ViewUtil;
 import com.google.android.material.snackbar.Snackbar;
+
+import javax.inject.Inject;
 
 public class EditTaskActivity extends AppCompatActivity implements SelectListDialog.OnListSelectedListener {
     private View mScrollView;
@@ -45,9 +48,13 @@ public class EditTaskActivity extends AppCompatActivity implements SelectListDia
     private TextView mTextError;
     private boolean mShowMenu = true;
 
+    @Inject
+    IntentActionFactory mIntentActionFactory;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        App.getAppComponent().inject(this);
         setContentView(R.layout.activity_edit_task);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -134,7 +141,15 @@ public class EditTaskActivity extends AppCompatActivity implements SelectListDia
                     ViewUtil.enable(!task.isTrashed(), mCheckBoxCompleted, mSpinnerPriority,
                             mEditTitle, mTextList, mTextReminder);
                     invalidateOptionsMenu();
-                    // todo reminder
+
+                    mTextReminder.setText(task.getReminderFormatted());
+                    mTextReminder.setOnClickListener(v -> {
+                        if (task.hasReminder()) {
+                            mIntentActionFactory.editReminder(task.getReminderId());
+                        } else {
+                            mIntentActionFactory.addReminder(task.getId());
+                        }
+                    });
                     break;
 
                 case EditTaskViewState.STATE_ERROR:

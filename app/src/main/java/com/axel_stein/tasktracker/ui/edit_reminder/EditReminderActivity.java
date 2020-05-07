@@ -1,28 +1,37 @@
 package com.axel_stein.tasktracker.ui.edit_reminder;
 
 import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
+import android.app.TimePickerDialog.OnTimeSetListener;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.axel_stein.tasktracker.R;
+import com.axel_stein.tasktracker.ui.IntentActionFactory;
 import com.axel_stein.tasktracker.utils.DateFormatter;
+import com.axel_stein.tasktracker.utils.MenuUtil;
+import com.axel_stein.tasktracker.utils.ViewUtil;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
 public class EditReminderActivity extends AppCompatActivity {
     private TextView mTextDate;
+    private View mBtnClearDate;
     private TextView mTextTime;
+    private View mBtnClearTime;
     private EditReminderViewModel mViewModel;
+    private boolean mEnableDoneButton;
 
     /*
     private TextView mTextRepeat;
@@ -37,7 +46,7 @@ public class EditReminderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_list);
+        setContentView(R.layout.activity_edit_reminder);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -48,13 +57,45 @@ public class EditReminderActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
-        mViewModel = new ViewModelProvider(this).get(EditReminderViewModel.class);
-
         mTextDate = findViewById(R.id.text_date);
         mTextDate.setOnClickListener(v -> showDatePicker());
 
+        mBtnClearDate = findViewById(R.id.btn_clear_date);
+        mBtnClearDate.setOnClickListener(v -> mViewModel.setDate(null));
+
         mTextTime = findViewById(R.id.text_time);
         mTextTime.setOnClickListener(v -> showTimePicker());
+
+        mBtnClearTime = findViewById(R.id.btn_clear_time);
+        mBtnClearTime.setOnClickListener(v -> mViewModel.setTime(null));
+
+        mViewModel = new ViewModelProvider(this).get(EditReminderViewModel.class);
+
+        String taskId = getIntent().getStringExtra(IntentActionFactory.EXTRA_TASK_ID);
+        String reminderId = getIntent().getStringExtra(IntentActionFactory.EXTRA_REMINDER_ID);
+        mViewModel.getReminderObserver(taskId, reminderId).observe(this, viewState -> {
+            // todo
+        });
+
+        mViewModel.getDateObserver().observe(this, date -> {
+            String dateFormatted = null;
+            if (date != null) {
+                dateFormatted = DateFormatter.formatDate(getApplication(), date.toDateTimeAtStartOfDay().getMillis(), false);
+            }
+            mTextDate.setText(dateFormatted);
+            ViewUtil.setVisible(date != null, mBtnClearDate);
+            mEnableDoneButton = date != null;
+            invalidateOptionsMenu();
+        });
+
+        mViewModel.getTimeObserver().observe(this, time -> {
+            String timeFormatted = null;
+            if (time != null) {
+                timeFormatted = DateFormatter.formatTime(getApplication(), time.toDateTimeToday().getMillis());
+            }
+            mTextTime.setText(timeFormatted);
+            ViewUtil.setVisible(time != null, mBtnClearTime);
+        });
 
         //mTextRepeat = findViewById(R.id.text_repeat);
         // mTextRepeat.setOnClickListener(v -> showSelectRepeatModeDialog());
@@ -83,70 +124,63 @@ public class EditReminderActivity extends AppCompatActivity {
     }
 
     private void showDatePicker() {
-        LocalDate currentDate = getDate(mViewModel.getDate());
+        OnDateSetListener listener = (view, year, month, dayOfMonth) ->
+                mViewModel.setDate(new LocalDate(year, month +1, dayOfMonth));
+
+        LocalDate currentDate = mViewModel.getCurrentDate();
+        if (currentDate == null) {
+            currentDate = new LocalDate();
+        }
         int year = currentDate.getYear();
         int month = currentDate.getMonthOfYear()-1;
         int day = currentDate.getDayOfMonth();
 
-        DatePickerDialog dialog = new DatePickerDialog(this, (view, year1, monthOfYear, dayOfMonth) -> {
-            LocalDate date = new LocalDate(year1, monthOfYear+1, dayOfMonth);
-            mViewModel.setDate(date);
-
-            mTextDate.setText(
-                    DateFormatter.formatDate(getApplication(), date.toDateTimeAtStartOfDay().getMillis(), false)
-            );
-        }, year, month, day);
+        DatePickerDialog dialog = new DatePickerDialog(this, listener, year, month, day);
         dialog.show();
     }
 
     private void showTimePicker() {
-        LocalTime currentTime = getTime(mViewModel.getTime());
-        TimePickerDialog dialog = new TimePickerDialog(this, (view, hourOfDay, minutesOfHour) -> {
-            LocalTime time = new LocalTime(hourOfDay, minutesOfHour);
-            mViewModel.setTime(time);
+        OnTimeSetListener listener = (view, hourOfDay, minutesOfHour) ->
+                mViewModel.setTime(new LocalTime(hourOfDay, minutesOfHour));
 
-            mTextTime.setText(
-                    DateFormatter.formatTime(getApplication(), time.toDateTimeToday().getMillis())
-            );
-        }, currentTime.getHourOfDay(), currentTime.getMinuteOfHour(), DateFormat.is24HourFormat(this));
+        LocalTime currentTime = mViewModel.getCurrentTime();
+        if (currentTime == null) {
+            currentTime = new LocalTime();
+        }
+        int hours = currentTime.getHourOfDay();
+        int minutes = currentTime.getMinuteOfHour();
+        boolean is24H = DateFormat.is24HourFormat(this);
+
+        TimePickerDialog dialog = new TimePickerDialog(this, listener, hours, minutes, is24H);
         dialog.show();
     }
 
-    @NonNull
-    private LocalDate getDate(LocalDate date) {
-        if (date == null) {
-            return new LocalDate();
-        }
-        return date;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_edit_reminder, menu);
+        MenuUtil.tintMenuIconsAttr(this, menu, R.attr.menuItemTintColor);
+        MenuUtil.show(menu, mViewModel.hasId(), R.id.menu_delete);
+        MenuUtil.enable(menu, mEnableDoneButton, R.id.menu_done);
+        return super.onCreateOptionsMenu(menu);
     }
 
-    @NonNull
-    private LocalTime getTime(LocalTime time) {
-        if (time == null) {
-            return new LocalTime();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+
+            case R.id.menu_delete:
+                mViewModel.delete();
+                finish();
+                break;
+
+            case R.id.menu_done:
+                mViewModel.save();
+                finish();
+                break;
         }
-        return time;
+        return super.onOptionsItemSelected(item);
     }
-
-    static class EditReminderViewModel extends ViewModel {
-        LocalDate mDate;
-        LocalTime mTime;
-
-        public LocalDate getDate() {
-            return mDate;
-        }
-
-        public void setDate(LocalDate date) {
-            mDate = date;
-        }
-
-        public LocalTime getTime() {
-            return mTime;
-        }
-
-        public void setTime(LocalTime time) {
-            mTime = time;
-        }
-    }
-
 }

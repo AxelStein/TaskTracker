@@ -104,7 +104,7 @@
                     android:maxLines="1"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
-                    android:text="Set reminder"
+                    android:hint="@string/hint_set_reminder"
                     android:textSize="16sp"
                     app:iconLeft="@drawable/ic_alarm_24px"
                     app:iconLeftTint="?android:attr/textColorPrimary" />

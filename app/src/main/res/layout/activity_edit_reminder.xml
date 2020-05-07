@@ -29,23 +29,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.axel_stein.tasktracker.views.IconTextView
-            android:id="@+id/text_date"
-            android:textSize="16sp"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:drawablePadding="16dp"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            app:iconLeft="@drawable/ic_event_24px"
-            app:iconLeftTint="?attr/colorControlNormal"
-            app:iconRightTint="?attr/colorAccent" />
+            android:layout_height="wrap_content">
+
+            <com.axel_stein.tasktracker.views.IconTextView
+                android:id="@+id/text_date"
+                android:textSize="16sp"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:drawablePadding="16dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:maxLines="1"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:hint="@string/hint_set_date"
+                app:iconLeft="@drawable/ic_event_24px"
+                app:iconLeftTint="?attr/colorControlNormal"
+                app:iconRightTint="?attr/colorAccent" />
+
+            <ImageButton
+                android:id="@+id/btn_clear_date"
+                style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_clear_white_24px"
+                android:tint="?attr/menuItemTintColor"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -66,13 +85,16 @@
                 android:maxLines="1"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:hint="@string/hint_set_time"
                 app:iconLeft="@drawable/ic_access_time_24px"
                 app:iconLeftTint="?attr/colorControlNormal"
                 app:iconRightTint="?attr/colorAccent" />
 
             <ImageButton
-                android:id="@+id/button_clear"
+                android:id="@+id/btn_clear_time"
                 style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
+                android:visibility="gone"
+                tools:visibility="visible"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_clear_white_24px"
@@ -95,7 +117,6 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:visibility="visible"
-            tools:visibility="visible"
             app:iconLeft="@drawable/ic_replay_24px"
             app:iconLeftTint="?attr/colorControlNormal"
             app:iconRightTint="?attr/colorAccent" />
@@ -106,6 +127,8 @@
             android:focusable="true"
             android:background="?attr/selectableItemBackground"
             android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="48dp">
 

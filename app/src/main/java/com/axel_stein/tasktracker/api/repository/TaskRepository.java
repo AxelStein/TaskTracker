@@ -219,7 +219,7 @@ public class TaskRepository {
         } else {
             single = get(id);
         }
-        return single.flatMap(task -> Single.fromCallable(() -> new TaskFunction().apply(task)).subscribeOn(Schedulers.io()));
+        return single.flatMap(task -> Single.fromCallable(() -> new TaskFunction(true).apply(task)).subscribeOn(Schedulers.io()));
     }
 
     public Single<Task> get(final String id) {
@@ -267,6 +267,15 @@ public class TaskRepository {
     }
 
     private class TaskFunction implements Function<Task, Task> {
+        private boolean mFullFormat;
+
+        public TaskFunction() {
+        }
+
+        public TaskFunction(boolean fullFormat) {
+            mFullFormat = fullFormat;
+        }
+
         @Override
         public Task apply(Task task) {
             LocalDate today = new LocalDate();
@@ -277,20 +286,30 @@ public class TaskRepository {
                 task.setReminderPassed(localDate.isBefore(today));
 
                 String pattern;
-                if (localDate.equals(today)) {
-                    if (m24HFormat) {
-                        pattern = "H:mm";
-                    } else {
-                        pattern = "h:mm aa";
-                    }
-                } else if (localDate.year().equals(today.year())) {
+                if (mFullFormat) {
                     pattern = "d MMM";
+                    if (!localDate.year().equals(today.year())) {
+                        pattern += " yyyy";
+                    }
+                    pattern += " at h:mm";
+                    if (m24HFormat) {
+                        pattern += " aa";
+                    }
                 } else {
-                    pattern = "d MMM yyyy";
+                    if (localDate.equals(today)) {
+                        pattern = "H:mm";
+                        if (m24HFormat) {
+                            pattern += " aa";
+                        }
+                    } else if (localDate.year().equals(today.year())) {
+                        pattern = "d MMM";
+                    } else {
+                        pattern = "d MMM yyyy";
+                    }
                 }
 
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, mLocale);
-                task.setDateTimeFormatted(simpleDateFormat.format(dateTime.toDate()).toLowerCase());
+                task.setReminderFormatted(simpleDateFormat.format(dateTime.toDate()).toLowerCase());
             }
 
             String listId = task.getListId();
