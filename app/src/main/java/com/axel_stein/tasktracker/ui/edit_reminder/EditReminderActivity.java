@@ -9,6 +9,7 @@ import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CalendarView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
@@ -29,6 +30,7 @@ import org.joda.time.LocalTime;
 import javax.inject.Inject;
 
 public class EditReminderActivity extends AppCompatActivity {
+    private CalendarView mCalendarView;
     private TextView mTextDate;
     private TextView mTextTime;
     private View mBtnClearTime;
@@ -62,6 +64,10 @@ public class EditReminderActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
+        mCalendarView = findViewById(R.id.calendar_view);
+        mCalendarView.setOnDateChangeListener((view, year, month, dayOfMonth) ->
+                mViewModel.setDate(new LocalDate(year, month +1, dayOfMonth)));
+
         mTextDate = findViewById(R.id.text_date);
         mTextDate.setOnClickListener(v -> showDatePicker());
 
@@ -81,6 +87,7 @@ public class EditReminderActivity extends AppCompatActivity {
         });
 
         mViewModel.getDateObserver().observe(this, date -> {
+            mCalendarView.setDate(date.toDate().getTime(), true, false);
             mTextDate.setText(mDateTimeUtil.formatDate(date));
         });
 
