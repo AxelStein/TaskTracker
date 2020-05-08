@@ -16,6 +16,7 @@
         tools:context=".main.MainActivity">
 
         <com.google.android.material.appbar.AppBarLayout
+            app:elevation="0dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -35,6 +36,12 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             app:srcCompat="@drawable/ic_add_24px" />
+
+        <View
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
 
         <fragment
             android:id="@+id/nav_host_fragment"

@@ -11,6 +11,7 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
+        app:elevation="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -28,6 +29,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
 
         <View
             android:id="@+id/focus_view"
@@ -89,7 +95,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <View
-                    android:visibility="gone"
                     android:layout_marginStart="72dp"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -113,7 +118,7 @@
                     app:iconLeftTint="?android:attr/textColorPrimary" />
 
                 <View
-                    android:visibility="gone"
+                    android:layout_marginStart="72dp"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="?android:attr/listDivider" />
@@ -143,7 +148,7 @@
                 </LinearLayout>
 
                 <View
-                    android:visibility="gone"
+                    android:layout_marginStart="72dp"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="?android:attr/listDivider" />
@@ -164,6 +169,12 @@
                     app:iconLeft="@drawable/ic_list_alt_24px"
                     app:iconLeftTint="?android:attr/textColorPrimary"
                     tools:text="Inbox" />
+
+                <View
+                    android:layout_marginStart="72dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
 
                 <!--
                 <com.axel_stein.tasktracker.views.IconTextView

@@ -6,6 +6,7 @@
         <item name="android:windowBackground">@color/window_background_light</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="reminderTint">@color/reminder_tint_light</item>
+        <item name="taskItemBackgroundColor">@color/task_item_background_light</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">?attr/colorPrimary</item>
         <item name="actionModeCloseDrawable">@drawable/ic_clear_24px</item>
@@ -24,6 +25,7 @@
         <item name="colorPrimaryDark">#19222D</item>
         <item name="colorAccent">#62A8E3</item>
         <item name="reminderTint">@color/reminder_tint_dark</item>
+        <item name="taskItemBackgroundColor">@color/task_item_background_dark</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">?attr/colorPrimary</item>
         <item name="actionModeCloseDrawable">@drawable/ic_clear_white_24px</item>

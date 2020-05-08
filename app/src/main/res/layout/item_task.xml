@@ -13,7 +13,8 @@
     <View
         android:id="@+id/foreground"
         android:visibility="gone"
-        android:background="@color/task_item_background_dark"
+        tools:visibility="visible"
+        android:background="?attr/taskItemBackgroundColor"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"

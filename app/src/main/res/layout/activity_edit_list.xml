@@ -8,6 +8,7 @@
     tools:context=".ui.edit_list.EditListActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        app:elevation="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -24,6 +25,11 @@
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
 
         <View
             android:id="@+id/focus_view"
