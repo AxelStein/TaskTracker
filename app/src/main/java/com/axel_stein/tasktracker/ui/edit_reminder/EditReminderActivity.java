@@ -88,10 +88,7 @@ public class EditReminderActivity extends AppCompatActivity {
         mSpinnerRepeatMode.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position != REPEAT_PERIOD_PERSONAL) {
-                    mViewModel.setRepeatPeriod(position);
-                    mViewModel.setRepeatCount(1);
-                }
+                ViewUtil.setVisible(position == REPEAT_PERIOD_PERSONAL, mEditRepeatLayout);
             }
 
             @Override
@@ -99,28 +96,10 @@ public class EditReminderActivity extends AppCompatActivity {
         });
 
         mEditRepeatLayout = findViewById(R.id.layout_edit_repeat);
-
         mSpinnerRepeatCount = findViewById(R.id.spinner_repeat_count);
-        mSpinnerRepeatCount.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mViewModel.setRepeatCount(position + 1);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
+        setupRepeatCountSpinner();
 
         mSpinnerRepeatPeriod = findViewById(R.id.spinner_repeat_period);
-        mSpinnerRepeatPeriod.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mViewModel.setRepeatPeriod(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
 
         String taskId = getIntent().getStringExtra(EXTRA_TASK_ID);
         String reminderId = getIntent().getStringExtra(EXTRA_REMINDER_ID);
@@ -136,12 +115,11 @@ public class EditReminderActivity extends AppCompatActivity {
         mViewModel.getRepeatModeObserver().observe(this, repeatMode -> {
             LogUtil.debug("observe: " + repeatMode);
             boolean showEditRepeat = repeatMode.getCount() > 1;
-            mSpinnerRepeatMode.setSelection(showEditRepeat ? REPEAT_PERIOD_PERSONAL : repeatMode.getMode());
+            mSpinnerRepeatMode.setSelection(showEditRepeat ? REPEAT_PERIOD_PERSONAL : repeatMode.getPeriod());
             ViewUtil.setVisible(showEditRepeat, mEditRepeatLayout);
             if (showEditRepeat) {
-                setupRepeatCountSpinner();
                 mSpinnerRepeatCount.setSelection(repeatMode.getCount() - 1);
-                mSpinnerRepeatPeriod.setSelection(repeatMode.getPeriod());
+                mSpinnerRepeatPeriod.setSelection(repeatMode.getPeriod() - 1);
             }
             invalidateOptionsMenu();
         });
@@ -216,6 +194,14 @@ public class EditReminderActivity extends AppCompatActivity {
                 break;
 
             case R.id.menu_done:
+                int mode = mSpinnerRepeatMode.getSelectedItemPosition();
+                if (mode == REPEAT_PERIOD_PERSONAL) {
+                    mViewModel.setRepeatPeriod(mSpinnerRepeatPeriod.getSelectedItemPosition() + 1);
+                    mViewModel.setRepeatCount(mSpinnerRepeatCount.getSelectedItemPosition() + 1);
+                } else {
+                    mViewModel.setRepeatPeriod(mode);
+                    mViewModel.setRepeatCount(1);
+                }
                 mViewModel.save();
                 finish();
                 break;

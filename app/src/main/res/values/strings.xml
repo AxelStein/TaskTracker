@@ -70,4 +70,10 @@
     <string name="repeat_period_week">week</string>
     <string name="repeat_period_month">month</string>
     <string name="repeat_period_year">year</string>
+
+    <string-array name="nums">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
 </resources>
