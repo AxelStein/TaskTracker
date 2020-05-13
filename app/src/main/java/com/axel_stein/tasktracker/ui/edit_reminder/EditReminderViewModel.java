@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.axel_stein.tasktracker.App;
+import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.repository.ReminderRepository;
@@ -33,6 +34,8 @@ public class EditReminderViewModel extends ViewModel implements SingleObserver<R
     private MutableLiveData<LocalDate> mDate;
     private MutableLiveData<LocalTime> mTime;
     private MutableLiveData<RepeatMode> mRepeatMode;
+    private MutableLiveData<LocalDate> mRepeatEndDate;
+    private MutableLiveData<Integer> mMessages;
 
     public static class RepeatMode {
         private int period;
@@ -72,6 +75,8 @@ public class EditReminderViewModel extends ViewModel implements SingleObserver<R
             mDate = new MutableLiveData<>();
             mTime = new MutableLiveData<>();
             mRepeatMode = new MutableLiveData<>();
+            mRepeatEndDate = new MutableLiveData<>();
+            mMessages = new MutableLiveData<>();
 
             LogUtil.debug("init: taskId = " + taskId + ", reminderId = " + reminderId);
 
@@ -96,14 +101,27 @@ public class EditReminderViewModel extends ViewModel implements SingleObserver<R
     public void onSuccess(Reminder reminder) {
         LogUtil.debug("onSuccess: " + reminder);
         mReminder = reminder;
-        mDate.postValue(reminder.getDate());
-        mTime.postValue(reminder.getTime());
+        mDate.setValue(reminder.getDate());
+        mTime.setValue(reminder.getTime());
         mRepeatMode.setValue(new RepeatMode(reminder.getRepeatPeriod(), reminder.getRepeatCount()));
+        mRepeatEndDate.setValue(reminder.getRepeatEndDate());
     }
 
     @Override
     public void onError(Throwable t) {
         t.printStackTrace();
+    }
+
+    public MutableLiveData<Integer> getMessageObserver() {
+        return mMessages;
+    }
+
+    public LiveData<LocalDate> getRepeatEndDateObserver() {
+        return mRepeatEndDate;
+    }
+
+    public LocalDate getRepeatEndDate() {
+        return mRepeatEndDate.getValue();
     }
 
     public LiveData<LocalDate> getDateObserver() {
@@ -140,6 +158,7 @@ public class EditReminderViewModel extends ViewModel implements SingleObserver<R
     public void save() {
         mReminder.setTime(mTime.getValue());
         mReminder.setDate(mDate.getValue());
+        mReminder.setRepeatEndDate(mRepeatEndDate.getValue());
 
         RepeatMode repeatMode = mRepeatMode.getValue();
         if (repeatMode != null) {
@@ -196,6 +215,19 @@ public class EditReminderViewModel extends ViewModel implements SingleObserver<R
         if (mode != null) {
             mode.period = period;
         }
+    }
+
+    public void setRepeatEndDate(LocalDate date) {
+        if (date != null && date.isBefore(getCurrentDate())) {
+            postMessage(R.string.error);
+        } else {
+            mRepeatEndDate.setValue(date);
+        }
+    }
+
+    private void postMessage(int msg) {
+        mMessages.setValue(msg);
+        mMessages.setValue(0);
     }
 
 }

@@ -70,6 +70,7 @@
     <string name="repeat_period_week">week</string>
     <string name="repeat_period_month">month</string>
     <string name="repeat_period_year">year</string>
+    <string name="hint_set_repeat_end_date">Set repeat end date</string>
 
     <string-array name="nums">
         <item>1</item>

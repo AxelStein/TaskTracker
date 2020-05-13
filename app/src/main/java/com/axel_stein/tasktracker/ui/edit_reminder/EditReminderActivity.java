@@ -1,5 +1,7 @@
 package com.axel_stein.tasktracker.ui.edit_reminder;
 
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.os.Bundle;
@@ -26,6 +28,7 @@ import com.axel_stein.tasktracker.utils.DisplayUtil;
 import com.axel_stein.tasktracker.utils.LogUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.ViewUtil;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -48,6 +51,8 @@ public class EditReminderActivity extends AppCompatActivity {
     private Spinner mSpinnerRepeatPeriod;
     private View mEditRepeatLayout;
     private EditReminderViewModel mViewModel;
+    private TextView mTextRepeatEndDate;
+    private View mBtnClearRepeatEndDate;
 
     @Inject
     DateTimeUtil mDateTimeUtil;
@@ -77,7 +82,18 @@ public class EditReminderActivity extends AppCompatActivity {
         mBtnClearTime = findViewById(R.id.btn_clear_time);
         mBtnClearTime.setOnClickListener(v -> mViewModel.setTime(null));
 
-        mViewModel = new ViewModelProvider(this).get(EditReminderViewModel.class);
+        mTextRepeatEndDate = findViewById(R.id.text_repeat_end_date);
+        mTextRepeatEndDate.setOnClickListener(v ->
+                showDatePicker(mViewModel.getRepeatEndDate(),
+                        (view, year, month, dayOfMonth) ->
+                                mViewModel.setRepeatEndDate(
+                                        new LocalDate(year, month +1, dayOfMonth)
+                                )
+                )
+        );
+
+        mBtnClearRepeatEndDate = findViewById(R.id.btn_clear_repeat_end_date);
+        mBtnClearRepeatEndDate.setOnClickListener(v -> mViewModel.setRepeatEndDate(null));
 
         mSpinnerRepeatMode = findViewById(R.id.spinner_repeat_mode);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -88,7 +104,8 @@ public class EditReminderActivity extends AppCompatActivity {
         mSpinnerRepeatMode.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ViewUtil.setVisible(position == REPEAT_PERIOD_PERSONAL, mEditRepeatLayout);
+                ViewUtil.setVisible(position == REPEAT_PERIOD_PERSONAL, mEditRepeatLayout,
+                        findViewById(R.id.divider_edit_repeat));
             }
 
             @Override
@@ -103,6 +120,8 @@ public class EditReminderActivity extends AppCompatActivity {
 
         String taskId = getIntent().getStringExtra(EXTRA_TASK_ID);
         String reminderId = getIntent().getStringExtra(EXTRA_REMINDER_ID);
+
+        mViewModel = new ViewModelProvider(this).get(EditReminderViewModel.class);
         mViewModel.init(taskId, reminderId);
         mViewModel.getDateObserver().observe(this, date ->
                 mCalendarView.setDate(date.toDate().getTime()));
@@ -112,11 +131,22 @@ public class EditReminderActivity extends AppCompatActivity {
             ViewUtil.setVisible(time != null, mBtnClearTime);
         });
 
+        mViewModel.getRepeatEndDateObserver().observe(this, date -> {
+            mTextRepeatEndDate.setText(mDateTimeUtil.formatDate(date));
+            ViewUtil.setVisible(date != null, mBtnClearRepeatEndDate);
+        });
+
+        mViewModel.getMessageObserver().observe(this, msg -> {
+            if (msg != 0) {
+                Snackbar.make(toolbar, msg, Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
         mViewModel.getRepeatModeObserver().observe(this, repeatMode -> {
             LogUtil.debug("observe: " + repeatMode);
             boolean showEditRepeat = repeatMode.getCount() > 1;
             mSpinnerRepeatMode.setSelection(showEditRepeat ? REPEAT_PERIOD_PERSONAL : repeatMode.getPeriod());
-            ViewUtil.setVisible(showEditRepeat, mEditRepeatLayout);
+            ViewUtil.setVisible(showEditRepeat, mEditRepeatLayout, findViewById(R.id.divider_edit_repeat));
             if (showEditRepeat) {
                 mSpinnerRepeatCount.setSelection(repeatMode.getCount() - 1);
                 mSpinnerRepeatPeriod.setSelection(repeatMode.getPeriod() - 1);
@@ -139,12 +169,7 @@ public class EditReminderActivity extends AppCompatActivity {
         mSpinnerRepeatCount.setSelection(0);
     }
 
-    /*
-    private void showDatePicker() {
-        OnDateSetListener listener = (view, year, month, dayOfMonth) ->
-                mViewModel.setDate(new LocalDate(year, month +1, dayOfMonth));
-
-        LocalDate currentDate = mViewModel.getCurrentDate();
+    private void showDatePicker(LocalDate currentDate, OnDateSetListener listener) {
         if (currentDate == null) {
             currentDate = new LocalDate();
         }
@@ -155,7 +180,6 @@ public class EditReminderActivity extends AppCompatActivity {
         DatePickerDialog dialog = new DatePickerDialog(this, listener, year, month, day);
         dialog.show();
     }
-    */
 
     private void showTimePicker() {
         OnTimeSetListener listener = (view, hourOfDay, minutesOfHour) ->
