@@ -26,6 +26,7 @@ import com.axel_stein.tasktracker.api.repository.TaskRepository;
 import com.axel_stein.tasktracker.ui.task_list.view_model.ListViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.SearchViewModel;
 import com.axel_stein.tasktracker.utils.MenuUtil;
+import com.axel_stein.tasktracker.utils.MenuUtil.MenuItemBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
@@ -84,16 +85,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         CompositeDisposable disposable = new CompositeDisposable();
-        disposable.add(mListRepository.query().subscribe(books -> {
+        disposable.add(mListRepository.query().subscribe(lists -> {
             Menu menu = mNavigationView.getMenu();
             removeGroupItems(menu, R.id.group_list);
-            for (TaskList taskList : books) {
-                MenuItem item = menu.add(R.id.group_list, R.id.fragment_list, 0, taskList.getName());
-                item.setIcon(R.drawable.ic_list_alt_24px);
-                item.setCheckable(true);
-                item.setIntent(new Intent().setAction(taskList.getId()));
+            for (TaskList list : lists) {
+                MenuItemBuilder.from(R.id.fragment_list)
+                        .setGroup(R.id.group_list)
+                        .setTitle(list.getName())
+                        .setCheckable(true)
+                        .setIntent(new Intent().setAction(list.getId()))
+                        .add(menu);
             }
-            menu.add(R.id.group_list, R.id.menu_add_list, 1, "Add list").setIcon(R.drawable.ic_add_box_24px);
+
+            MenuItemBuilder.from(R.id.menu_add_list)
+                    .setOrder(1)
+                    .setTitleRes(R.string.action_add_list)
+                    .setIcon(R.drawable.ic_add_box_24px)
+                    .add(menu);
         }, Throwable::printStackTrace));
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.fragment_all, R.id.fragment_today,
