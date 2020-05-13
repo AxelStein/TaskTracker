@@ -96,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
             menu.add(R.id.group_list, R.id.menu_add_list, 1, "Add list").setIcon(R.drawable.ic_add_box_24px);
         }, Throwable::printStackTrace));
 
-        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.fragment_inbox, R.id.fragment_completed,
+        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.fragment_all, R.id.fragment_today,
+                R.id.fragment_week, R.id.fragment_inbox, R.id.fragment_completed,
                 R.id.fragment_trash, R.id.fragment_list)
                 .setDrawerLayout(mDrawerLayout)
                 .build();

@@ -5,9 +5,39 @@
     app:startDestination="@id/fragment_inbox">
 
     <fragment
+        android:id="@+id/fragment_all"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
+        android:label="@string/action_all" >
+        <argument
+            android:name="BUNDLE_VIEW_MODEL"
+            app:argType="integer"
+            android:defaultValue="7" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_today"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
+        android:label="@string/action_today" >
+        <argument
+            android:name="BUNDLE_VIEW_MODEL"
+            app:argType="integer"
+            android:defaultValue="5" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_week"
+        android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
+        android:label="@string/action_week" >
+        <argument
+            android:name="BUNDLE_VIEW_MODEL"
+            app:argType="integer"
+            android:defaultValue="6" />
+    </fragment>
+
+    <fragment
         android:id="@+id/fragment_inbox"
         android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
-        android:label="Inbox" >
+        android:label="@string/action_inbox" >
         <argument
             android:name="BUNDLE_VIEW_MODEL"
             app:argType="integer"
@@ -17,7 +47,7 @@
     <fragment
         android:id="@+id/fragment_completed"
         android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
-        android:label="Completed" >
+        android:label="@string/action_completed" >
         <argument
             android:name="BUNDLE_VIEW_MODEL"
             app:argType="integer"
@@ -27,7 +57,7 @@
     <fragment
         android:id="@+id/fragment_trash"
         android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment"
-        android:label="Trash" >
+        android:label="@string/action_trash" >
         <argument
             android:name="BUNDLE_VIEW_MODEL"
             app:argType="integer"

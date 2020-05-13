@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,12 +22,15 @@ import com.axel_stein.tasktracker.R;
 import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.ui.dialog.SelectListDialog;
+import com.axel_stein.tasktracker.ui.task_list.view_model.AllViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.CompletedViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.InboxViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.ListViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.SearchViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.TasksViewModel;
+import com.axel_stein.tasktracker.ui.task_list.view_model.TodayViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.TrashedViewModel;
+import com.axel_stein.tasktracker.ui.task_list.view_model.WeekViewModel;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.ViewUtil;
 
@@ -41,6 +43,9 @@ public class TasksFragment extends Fragment implements SelectListDialog.OnListSe
     private static final int VIEW_MODEL_TRASHED = 2;
     private static final int VIEW_MODEL_LIST = 3;
     private static final int VIEW_MODEL_SEARCH = 4;
+    private static final int VIEW_MODEL_TODAY = 5;
+    private static final int VIEW_MODEL_WEEK = 6;
+    private static final int VIEW_MODEL_ALL = 7;
 
     private TasksViewModel mViewModel;
     private TasksAdapter mListAdapter;
@@ -77,6 +82,18 @@ public class TasksFragment extends Fragment implements SelectListDialog.OnListSe
 
             case VIEW_MODEL_SEARCH:
                 mViewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
+                break;
+
+            case VIEW_MODEL_TODAY:
+                mViewModel = provider.get(TodayViewModel.class);
+                break;
+
+            case VIEW_MODEL_WEEK:
+                mViewModel = provider.get(WeekViewModel.class);
+                break;
+
+            case VIEW_MODEL_ALL:
+                mViewModel = provider.get(AllViewModel.class);
                 break;
         }
     }

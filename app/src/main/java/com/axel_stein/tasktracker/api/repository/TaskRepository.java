@@ -266,6 +266,18 @@ public class TaskRepository {
         return mDao.search("%" + query + "%").map(new TaskFunction());
     }
 
+    public DataSource.Factory<Integer, Task> queryTodayDataSource() {
+        return mDao.queryToday().mapByPage(new SortTaskFunction()).map(new TaskFunction());
+    }
+
+    public DataSource.Factory<Integer, Task> queryWeekDataSource() {
+        return mDao.queryWeek().mapByPage(new SortTaskFunction()).map(new TaskFunction());
+    }
+
+    public DataSource.Factory<Integer, Task> queryAllDataSource() {
+        return mDao.queryAll().mapByPage(new SortTaskFunction()).map(new TaskFunction());
+    }
+
     private class SortTaskFunction implements Function<List<Task>, List<Task>> { // todo delete
 
         @Override

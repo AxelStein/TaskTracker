@@ -1,21 +1,13 @@
 <resources>
     <string name="app_name">TaskTracker</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="action_all">All</string>
+    <string name="action_today">Today</string>
+    <string name="action_week">This week</string>
+    <string name="action_completed">Completed</string>
+    <string name="action_trash">Trash</string>
     <string name="action_inbox">Inbox</string>
-    <string name="empty_list">Empty list</string>
     <string name="action_search">Search</string>
-    <string name="hint_title">Title</string>
-    <string name="hint_description">Description</string>
-    <string name="description_clear">Clear description</string>
-    <string name="error">Error</string>
     <string name="action_delete_forever">Delete forever</string>
     <string name="action_restore">Restore</string>
     <string name="action_delete">Delete</string>
@@ -26,15 +18,27 @@
     <string name="action_select_all">Select all</string>
     <string name="action_empty_trash">Empty trash</string>
     <string name="action_add_list">Add list</string>
-    <string name="title_select_list">Move to list</string>
     <string name="action_move_to_list">Move to list</string>
     <string name="action_undo_complete">Undo complete</string>
-    <string name="error_name_required">Name is required</string>
-    <string name="error_name_exists">Name already exists</string>
-    <string name="repeat_every">Every</string>
+
+    <string name="empty_list">Empty list</string>
+
+    <string name="hint_title">Title</string>
+    <string name="hint_description">Description</string>
     <string name="hint_set_time">Set time</string>
     <string name="hint_set_date">Set date</string>
     <string name="hint_set_reminder">Set reminder</string>
+    <string name="hint_set_repeat_end_date">Set repeat end date</string>
+
+    <string name="description_clear">Clear description</string>
+
+    <string name="error">Error</string>
+    <string name="error_name_required">Name is required</string>
+    <string name="error_name_exists">Name already exists</string>
+
+    <string name="title_select_list">Move to list</string>
+
+    <string name="repeat_every">Every</string>
 
     <string-array name="priority">
         <item>None</item>
@@ -70,11 +74,4 @@
     <string name="repeat_period_week">week</string>
     <string name="repeat_period_month">month</string>
     <string name="repeat_period_year">year</string>
-    <string name="hint_set_repeat_end_date">Set repeat end date</string>
-
-    <string-array name="nums">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
 </resources>

@@ -5,20 +5,35 @@
         android:checkableBehavior="single">
 
         <item
+            android:id="@+id/fragment_all"
+            android:icon="@drawable/ic_all_inbox_24px"
+            android:title="@string/action_all" />
+
+        <item
+            android:id="@+id/fragment_today"
+            android:icon="@drawable/ic_today_24px"
+            android:title="@string/action_today" />
+
+        <item
+            android:id="@+id/fragment_week"
+            android:icon="@drawable/ic_next_week_24px"
+            android:title="@string/action_week" />
+
+        <item
             android:id="@+id/fragment_inbox"
             android:checked="true"
             android:icon="@drawable/ic_inbox_white_24dp"
-            android:title="Inbox" />
+            android:title="@string/action_inbox" />
 
         <item
             android:id="@+id/fragment_completed"
             android:icon="@drawable/ic_check_circle_outline_24px"
-            android:title="Completed" />
+            android:title="@string/action_completed" />
 
         <item
             android:id="@+id/fragment_trash"
             android:icon="@drawable/ic_delete_outline_24px"
-            android:title="Trash" />
+            android:title="@string/action_trash" />
 
     </group>
 

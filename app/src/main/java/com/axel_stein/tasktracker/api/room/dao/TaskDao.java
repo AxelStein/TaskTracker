@@ -98,4 +98,18 @@ public abstract class TaskDao {
     @Query("SELECT COUNT(*) FROM tasks")
     public abstract int count();
 
+    @Query("SELECT * FROM tasks INNER JOIN reminders ON reminders.task_id = tasks.id " +
+            "WHERE reminders.date = date('now') " +
+            "AND completed = 0 AND trashed = 0 " +
+            "ORDER BY priority DESC, title ASC")
+    public abstract DataSource.Factory<Integer, Task> queryToday();
+
+    @Query("SELECT * FROM tasks INNER JOIN reminders ON reminders.task_id = tasks.id " +
+            "WHERE reminders.date BETWEEN date('now') AND date('now', '+6 day') " +
+            "AND completed = 0 AND trashed = 0 " +
+            "ORDER BY priority DESC, title ASC")
+    public abstract DataSource.Factory<Integer, Task> queryWeek();
+
+    @Query("SELECT * FROM tasks WHERE trashed = 0 AND completed = 0 ORDER BY priority DESC, title ASC")
+    public abstract DataSource.Factory<Integer, Task> queryAll();
 }
