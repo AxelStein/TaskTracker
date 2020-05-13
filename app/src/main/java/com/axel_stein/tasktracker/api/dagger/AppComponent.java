@@ -2,6 +2,7 @@ package com.axel_stein.tasktracker.api.dagger;
 
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.reminder.ReminderReceiver;
+import com.axel_stein.tasktracker.api.reminder.ReminderScheduler;
 import com.axel_stein.tasktracker.api.reminder.ReminderService;
 import com.axel_stein.tasktracker.ui.MainActivity;
 import com.axel_stein.tasktracker.ui.dialog.SelectListDialog;
@@ -31,4 +32,5 @@ public interface AppComponent {
     void inject(EditReminderViewModel viewModel);
     void inject(EditTaskActivity activity);
     void inject(EditReminderActivity activity);
+    void inject(ReminderScheduler scheduler);
 }

@@ -4,6 +4,7 @@ import androidx.room.Room;
 
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.reminder.AndroidNotificationTray;
+import com.axel_stein.tasktracker.api.reminder.PendingIntentFactory;
 import com.axel_stein.tasktracker.api.reminder.ReminderScheduler;
 import com.axel_stein.tasktracker.api.repository.TaskListRepository;
 import com.axel_stein.tasktracker.api.repository.FolderRepository;
@@ -68,13 +69,18 @@ public class AppModule {
     }
 
     @Provides
-    AndroidNotificationTray provideAndroidNotificationTray(App app) {
-        return new AndroidNotificationTray(app);
+    AndroidNotificationTray provideAndroidNotificationTray(App app, PendingIntentFactory factory) {
+        return new AndroidNotificationTray(app, factory);
     }
 
     @Provides
     IntentActionFactory provideIntentActionFactory(App app) {
         return new IntentActionFactory(app);
+    }
+
+    @Provides
+    PendingIntentFactory providePendingIntentFactory(App app, IntentActionFactory factory) {
+        return new PendingIntentFactory(app, factory);
     }
 
     @Provides

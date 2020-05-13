@@ -64,6 +64,20 @@ public class IconTextView extends AppCompatTextView {
         update();
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        setIconEnabled(mIconTop, enabled);
+        setIconEnabled(mIconLeft, enabled);
+        setIconEnabled(mIconRight, enabled);
+    }
+
+    private void setIconEnabled(Drawable icon, boolean enabled) {
+        if (icon != null) {
+            icon.mutate().setAlpha(enabled ? 255 : 124);
+        }
+    }
+
     public void showIcons(boolean showIcons) {
         mShowIcons = showIcons;
         update();

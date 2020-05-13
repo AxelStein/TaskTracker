@@ -10,11 +10,13 @@ import com.axel_stein.tasktracker.utils.CompareBuilder;
 
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
+
 import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
 @Entity(tableName = "tasks")
-public class Task implements Cloneable {
+public class Task implements Cloneable, Serializable {
     public static final int PRIORITY_NONE = 0;
     public static final int PRIORITY_LOW = 1;
     public static final int PRIORITY_MIDDLE = 2;
@@ -222,14 +224,6 @@ public class Task implements Cloneable {
             return contentEquals(id, t.id);
         }
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return "Task{" +
-                "id='" + id + '\'' +
-                ", title='" + title + '\'' +
-                '}';
     }
 
 }

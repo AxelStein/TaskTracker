@@ -1,10 +1,8 @@
 package com.axel_stein.tasktracker.api.repository;
 
 import android.content.Context;
-import android.text.format.DateFormat;
 
 import androidx.arch.core.util.Function;
-import androidx.core.os.ConfigurationCompat;
 import androidx.paging.DataSource;
 
 import com.axel_stein.tasktracker.R;
@@ -21,7 +19,6 @@ import org.joda.time.LocalTime;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import io.reactivex.Completable;
@@ -50,8 +47,6 @@ public class TaskRepository {
     private TaskDao mDao;
     private TaskListDao mListDao;
     private ReminderDao mReminderDao;
-    private Locale mLocale;
-    private final boolean m24HFormat;
     private DateTimeUtil mDateTimeUtil;
 
     public TaskRepository(Context context, TaskDao dao, TaskListDao listDao, ReminderDao reminderDao, DateTimeUtil dateTimeUtil) {
@@ -59,8 +54,6 @@ public class TaskRepository {
         mDao = requireNonNull(dao);
         mListDao = requireNonNull(listDao);
         mReminderDao = requireNonNull(reminderDao);
-        m24HFormat = DateFormat.is24HourFormat(requireNonNull(context));
-        mLocale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
         mDateTimeUtil = dateTimeUtil;
     }
 
@@ -227,13 +220,15 @@ public class TaskRepository {
     }
 
     public Single<Task> get(final String id) {
-        return single(() -> {
-            checkRules(
-                    notEmptyString(id),
-                    taskExists(mDao, id)
-            );
-            return mDao.get(id);
-        });
+        return single(() -> getSync(id));
+    }
+
+    public Task getSync(final String id) {
+        checkRules(
+                notEmptyString(id),
+                taskExists(mDao, id)
+        );
+        return mDao.get(id);
     }
 
     public Completable duplicate(Task task) {

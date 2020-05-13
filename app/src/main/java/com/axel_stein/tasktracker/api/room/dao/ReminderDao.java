@@ -7,6 +7,9 @@ import androidx.room.Update;
 
 import com.axel_stein.tasktracker.api.model.Reminder;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+
 import java.util.List;
 
 @Dao
@@ -29,9 +32,8 @@ public interface ReminderDao {
 
     @Query("SELECT * FROM reminders ORDER BY date")
     List<Reminder> query();
-    /*
-    @Query("SELECT * FROM reminders WHERE date = :dateTime ORDER BY date")
-    List<Reminder> queryDateTime(DateTime dateTime);
-    */
+
+    @Query("SELECT * FROM reminders WHERE date = :date AND time = :time ORDER BY date")
+    List<Reminder> queryDateTime(LocalDate date, LocalTime time);
 
 }

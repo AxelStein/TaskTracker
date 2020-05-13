@@ -10,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -28,6 +30,7 @@ import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.ui.IntentActionFactory;
 import com.axel_stein.tasktracker.ui.dialog.SelectListDialog;
+import com.axel_stein.tasktracker.utils.DisplayUtil;
 import com.axel_stein.tasktracker.utils.KeyboardUtil;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.SimpleTextWatcher;
@@ -89,8 +92,14 @@ public class EditTaskActivity extends AppCompatActivity implements SelectListDia
 
         mTextReminder = findViewById(R.id.text_reminder);
         mTextError = findViewById(R.id.text_error);
+
         mSpinnerPriority = findViewById(R.id.spinner_priority);
-        mSpinnerPriority.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.priority, R.layout.item_spinner_priority);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinnerPriority.setAdapter(adapter);
+        mSpinnerPriority.setDropDownHorizontalOffset(DisplayUtil.dpToPx(this, 72));
+        mSpinnerPriority.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mViewModel.setPriority(position);
@@ -142,8 +151,11 @@ public class EditTaskActivity extends AppCompatActivity implements SelectListDia
                         KeyboardUtil.show(mEditTitle);
                     }
                     mTextList.setText(task.getListName());
-                    ViewUtil.enable(!task.isTrashed(), mCheckBoxCompleted, mSpinnerPriority,
-                            mEditTitle, mTextList, mTextReminder);
+                    ViewUtil.enable(!task.isCompleted(), mTextReminder);
+                    if (task.isTrashed()) {
+                        ViewUtil.enable(false, mCheckBoxCompleted, mSpinnerPriority,
+                                mEditTitle, mTextList, mTextReminder);
+                    }
                     invalidateOptionsMenu();
 
                     mTextReminder.setText(task.getReminderFormatted());

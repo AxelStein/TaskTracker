@@ -35,10 +35,39 @@
     <string name="hint_set_time">Set time</string>
     <string name="hint_set_date">Set date</string>
     <string name="hint_set_reminder">Set reminder</string>
+
     <string-array name="priority">
         <item>None</item>
         <item>Low</item>
         <item>Middle</item>
         <item>High</item>
     </string-array>
+
+    <string-array name="repeat_mode">
+        <item>@string/repeat_mode_none</item>
+        <item>@string/repeat_mode_day</item>
+        <item>@string/repeat_mode_week</item>
+        <item>@string/repeat_mode_month</item>
+        <item>@string/repeat_mode_year</item>
+        <item>@string/repeat_mode_personal</item>
+    </string-array>
+
+    <string name="repeat_mode_none">No repeat</string>
+    <string name="repeat_mode_day">Every day</string>
+    <string name="repeat_mode_week">Every week</string>
+    <string name="repeat_mode_month">Every month</string>
+    <string name="repeat_mode_year">Every year</string>
+    <string name="repeat_mode_personal">Personal</string>
+
+    <string-array name="repeat_period">
+        <item>@string/repeat_period_day</item>
+        <item>@string/repeat_period_week</item>
+        <item>@string/repeat_period_month</item>
+        <item>@string/repeat_period_year</item>
+    </string-array>
+
+    <string name="repeat_period_day">day</string>
+    <string name="repeat_period_week">week</string>
+    <string name="repeat_period_month">month</string>
+    <string name="repeat_period_year">year</string>
 </resources>

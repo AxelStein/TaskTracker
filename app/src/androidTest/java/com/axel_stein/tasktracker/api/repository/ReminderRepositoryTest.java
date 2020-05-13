@@ -42,7 +42,7 @@ public class ReminderRepositoryTest extends RepositoryTest {
     @Test
     public void testUpdate() {
         Reminder reminder = insertTestReminder();
-        reminder.setRepeatMode(Reminder.REPEAT_MODE_MONTH);
+        reminder.setRepeatPeriod(Reminder.REPEAT_PERIOD_MONTH);
         reminder.setRepeatCount(2);
         reminder.setRepeatEndDate(new LocalDate());
         mReminderRepository.update(reminder).test().assertComplete();
@@ -75,11 +75,11 @@ public class ReminderRepositoryTest extends RepositoryTest {
 
         // test repeat mode
         reminder = insertTestReminder();
-        reminder.setRepeatMode(Reminder.REPEAT_MODE_NONE - 1);
+        reminder.setRepeatPeriod(Reminder.REPEAT_PERIOD_NONE - 1);
         mReminderRepository.update(reminder).test().assertError(IllegalArgumentException.class);
 
         reminder = insertTestReminder();
-        reminder.setRepeatMode(Reminder.REPEAT_MODE_YEAR + 1);
+        reminder.setRepeatPeriod(Reminder.REPEAT_PERIOD_YEAR + 1);
         mReminderRepository.update(reminder).test().assertError(IllegalArgumentException.class);
 
         // test repeat count

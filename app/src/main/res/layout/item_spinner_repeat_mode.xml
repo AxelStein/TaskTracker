@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.axel_stein.tasktracker.views.IconTextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:textSize="16sp"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:drawablePadding="32dp"
+    android:ellipsize="end"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    app:iconLeft="@drawable/ic_replay_24px"
+    app:iconLeftTint="?attr/colorControlNormal"
+    app:iconRightTint="?attr/colorAccent"
+    tools:ignore="RtlHardcoded"
+    tools:text="Item"/>

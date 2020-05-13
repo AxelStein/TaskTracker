@@ -1,38 +1,44 @@
 package com.axel_stein.tasktracker.api.reminder;
 
 import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.core.app.AlarmManagerCompat;
 
-import java.util.Objects;
+import com.axel_stein.tasktracker.App;
+import com.axel_stein.tasktracker.api.model.Reminder;
+
+import org.joda.time.DateTime;
+
+import javax.inject.Inject;
 
 import static android.app.AlarmManager.RTC_WAKEUP;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
 
 public class ReminderScheduler {
-    private Context mContext;
     private AlarmManager mAlarmManager;
 
+    @Inject
+    PendingIntentFactory mIntentFactory;
+
     public ReminderScheduler(Context context) {
-        mContext = context;
+        App.getAppComponent().inject(this);
         mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    }
+
+    public void schedule(Reminder reminder) {
+        DateTime dateTime = new DateTime().withDate(reminder.getDate()).withTime(reminder.getTime());
+        schedule(reminder.getId(), dateTime.getMillis());
     }
 
     public void schedule(String taskId, long timestamp) {
         if (isEmpty(taskId)) return;
         if (timestamp < System.currentTimeMillis()) return;
-
-        Intent intent = ReminderReceiver.getLaunchIntent(mContext);
-        PendingIntent pi = PendingIntent.getBroadcast(mContext, Objects.hashCode(taskId), intent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManagerCompat.setExactAndAllowWhileIdle(mAlarmManager, RTC_WAKEUP, timestamp, pi);
+        AlarmManagerCompat.setExactAndAllowWhileIdle(mAlarmManager, RTC_WAKEUP, timestamp,
+                mIntentFactory.getSetAlarmIntent(taskId));
     }
 
-    public void cancel(String noteId) {
-        Intent intent = ReminderReceiver.getLaunchIntent(mContext);
-        PendingIntent pi = PendingIntent.getBroadcast(mContext, Objects.hashCode(noteId), intent, PendingIntent.FLAG_ONE_SHOT);
-        mAlarmManager.cancel(pi);
+    public void cancel(String taskId) {
+        mAlarmManager.cancel(mIntentFactory.getSetAlarmIntent(taskId));
     }
 }

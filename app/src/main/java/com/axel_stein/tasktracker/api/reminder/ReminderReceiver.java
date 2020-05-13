@@ -6,22 +6,21 @@ import android.content.Intent;
 
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.ui.IntentActionFactory;
 
 import javax.inject.Inject;
 
-public class ReminderReceiver extends BroadcastReceiver {
-    private static final String ACTION_START = "com.axel_stein.tasktracker:ACTION_START";
-    public static final String ACTION_SHOW_NOTIFICATION = "com.axel_stein.tasktracker:ACTION_SHOW_NOTIFICATION";
-    public static final String EXTRA_TASK = "com.axel_stein.tasktracker:EXTRA_TASK";
+import static com.axel_stein.tasktracker.ui.IntentActionFactory.ACTION_SHOW_NOTIFICATION;
+import static com.axel_stein.tasktracker.ui.IntentActionFactory.ACTION_START;
+import static com.axel_stein.tasktracker.ui.IntentActionFactory.EXTRA_TASK;
 
-    public static Intent getLaunchIntent(Context context) {
-        Intent intent = new Intent(context, ReminderReceiver.class);
-        intent.setAction(ACTION_START);
-        return intent;
-    }
+public class ReminderReceiver extends BroadcastReceiver {
 
     @Inject
     AndroidNotificationTray mAndroidNotificationTray;
+
+    @Inject
+    IntentActionFactory mIntentActionFactory;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -33,7 +32,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         switch (action) {
             case ACTION_START:
-                ReminderService.launch(context);
+                mIntentActionFactory.launchReminderService();
                 break;
 
             case ACTION_SHOW_NOTIFICATION:

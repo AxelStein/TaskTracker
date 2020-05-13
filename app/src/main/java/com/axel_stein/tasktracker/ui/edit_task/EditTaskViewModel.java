@@ -92,7 +92,22 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
     public void setCompleted(boolean completed) {
         Task task = getTask();
         if (task != null && !task.isTrashed() && task.isCompleted() != completed) {
-            mRepository.toggleCompleted(task).subscribe();
+            mRepository.toggleCompleted(task).subscribe(new CompletableObserver() {
+                @Override
+                public void onSubscribe(Disposable d) {
+
+                }
+
+                @Override
+                public void onComplete() {
+                    invalidate();
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+            });
         }
     }
 

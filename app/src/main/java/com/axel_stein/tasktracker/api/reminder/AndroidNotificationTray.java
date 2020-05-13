@@ -25,20 +25,20 @@ public class AndroidNotificationTray {
     private static final String GROUP_ID = APP_ID + "GROUP_ID";
 
     private Context mContext;
-    private PendingIntentFactory mPendingIntents;
+    private PendingIntentFactory mIntentFactory;
 
-    public AndroidNotificationTray(Context context) {
+    public AndroidNotificationTray(Context context, PendingIntentFactory factory) {
         mContext = context;
-        mPendingIntents = new PendingIntentFactory(context);
+        mIntentFactory = factory;
     }
 
-    public void showNotification(Task note) {
+    public void showNotification(Task task) {
         wakeLock();
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mContext);
-        Notification notification = buildNotification(note);
+        Notification notification = buildNotification(task);
         createNotificationChannel();
-        notificationManager.notify(note.hashCode(), notification);
+        notificationManager.notify(task.hashCode(), notification);
         if (SDK_INT >= N) {
             notificationManager.notify(0, buildSummaryNotification());
         }
@@ -52,15 +52,15 @@ public class AndroidNotificationTray {
         }
     }
 
-    private Notification buildNotification(Task note) {
-        String title = note.getTitle();
+    private Notification buildNotification(Task task) {
+        String title = task.getTitle();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notifications_24px)
                 .setContentTitle(title)
                 .setStyle(new NotificationCompat.InboxStyle())
                 .setGroup(GROUP_ID)
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .setContentIntent(mPendingIntents.showTask(note))
+                .setContentIntent(mIntentFactory.getEditTaskIntent(task))
                 .setAutoCancel(true)
                 .setVibrate(new long[]{500,500,500,500,500,500,500,500})
                 .setPriority(NotificationCompat.PRIORITY_MAX);

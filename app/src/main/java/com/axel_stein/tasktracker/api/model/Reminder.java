@@ -12,11 +12,11 @@ import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
 @Entity(tableName = "reminders")
 public class Reminder {
-    public static final int REPEAT_MODE_NONE = 0;
-    public static final int REPEAT_MODE_DAY = 1;
-    public static final int REPEAT_MODE_WEEK = 2;
-    public static final int REPEAT_MODE_MONTH = 3;
-    public static final int REPEAT_MODE_YEAR = 4;
+    public static final int REPEAT_PERIOD_NONE = 0;
+    public static final int REPEAT_PERIOD_DAY = 1;
+    public static final int REPEAT_PERIOD_WEEK = 2;
+    public static final int REPEAT_PERIOD_MONTH = 3;
+    public static final int REPEAT_PERIOD_YEAR = 4;
 
     @PrimaryKey
     @NonNull
@@ -31,8 +31,8 @@ public class Reminder {
     @ColumnInfo
     private LocalTime time;
 
-    @ColumnInfo(name = "repeat_mode")
-    private int repeatMode;
+    @ColumnInfo(name = "repeat_period")
+    private int repeatPeriod;
 
     @ColumnInfo(name = "repeat_count")
     private int repeatCount;
@@ -77,12 +77,12 @@ public class Reminder {
         this.time = time;
     }
 
-    public int getRepeatMode() {
-        return repeatMode;
+    public int getRepeatPeriod() {
+        return repeatPeriod;
     }
 
-    public void setRepeatMode(int repeatMode) {
-        this.repeatMode = repeatMode;
+    public void setRepeatPeriod(int repeatPeriod) {
+        this.repeatPeriod = repeatPeriod;
     }
 
     public int getRepeatCount() {
@@ -103,20 +103,20 @@ public class Reminder {
 
     public void shiftDateTime() {
         LocalDate shifted = null;
-        switch (repeatMode) {
-            case REPEAT_MODE_DAY:
+        switch (repeatPeriod) {
+            case REPEAT_PERIOD_DAY:
                 shifted = date.plusDays(repeatCount);
                 break;
 
-            case REPEAT_MODE_WEEK:
+            case REPEAT_PERIOD_WEEK:
                 shifted = date.plusWeeks(repeatCount);
                 break;
 
-            case REPEAT_MODE_MONTH:
+            case REPEAT_PERIOD_MONTH:
                 shifted = date.plusMonths(repeatCount);
                 break;
 
-            case REPEAT_MODE_YEAR:
+            case REPEAT_PERIOD_YEAR:
                 shifted = date.plusYears(repeatCount);
                 break;
         }
@@ -132,4 +132,16 @@ public class Reminder {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Reminder{" +
+                "id='" + id + '\'' +
+                ", taskId='" + taskId + '\'' +
+                ", date=" + date +
+                ", time=" + time +
+                ", repeatPeriod=" + repeatPeriod +
+                ", repeatCount=" + repeatCount +
+                ", repeatEndDate=" + repeatEndDate +
+                '}';
+    }
 }

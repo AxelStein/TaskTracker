@@ -1,7 +1,7 @@
 package com.axel_stein.tasktracker.ui.edit_reminder;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -9,85 +9,109 @@ import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.Reminder;
 import com.axel_stein.tasktracker.api.repository.ReminderRepository;
+import com.axel_stein.tasktracker.utils.LogUtil;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.reactivestreams.Subscription;
 
 import javax.inject.Inject;
 
 import io.reactivex.CompletableObserver;
-import io.reactivex.FlowableSubscriber;
+import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 
-import static com.axel_stein.tasktracker.ui.BaseViewState.STATE_SUCCESS;
-import static com.axel_stein.tasktracker.ui.edit_reminder.EditReminderViewState.error;
-import static com.axel_stein.tasktracker.ui.edit_reminder.EditReminderViewState.success;
+import static com.axel_stein.tasktracker.api.model.Reminder.REPEAT_PERIOD_NONE;
 import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.isEmpty;
+import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
-public class EditReminderViewModel extends ViewModel implements FlowableSubscriber<Reminder> {
+public class EditReminderViewModel extends ViewModel implements SingleObserver<Reminder> {
+    public static final int REPEAT_PERIOD_PERSONAL = 5;
+
+    private Reminder mReminder;
     private String mReminderId;
-    private MutableLiveData<EditReminderViewState> mReminderViewState;
     private MutableLiveData<LocalDate> mDate;
     private MutableLiveData<LocalTime> mTime;
+    private MutableLiveData<RepeatMode> mRepeatMode;
+
+    public static class RepeatMode {
+        private int period;
+        private int count;
+
+        public RepeatMode(int period, int count) {
+            this.period = period;
+            this.count = count;
+        }
+
+        public int getPeriod() {
+            return period;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        @Override
+        public String toString() {
+            return "RepeatMode{" +
+                    "period=" + period +
+                    ", count=" + count +
+                    '}';
+        }
+    }
 
     @Inject
     ReminderRepository mRepository;
 
     public EditReminderViewModel() {
         App.getAppComponent().inject(this);
-        mDate = new MutableLiveData<>();
-        mTime = new MediatorLiveData<>();
     }
 
-    public LiveData<EditReminderViewState> getReminderObserver(String taskId, String reminderId) {
-        if (mReminderViewState == null) {
-            mReminderViewState = new MutableLiveData<>();
+    public void init(String taskId, String reminderId) {
+        if (mDate == null) {
+            mDate = new MutableLiveData<>();
+            mTime = new MutableLiveData<>();
+            mRepeatMode = new MutableLiveData<>();
+
+            LogUtil.debug("init: taskId = " + taskId + ", reminderId = " + reminderId);
+
+            if (isEmpty(reminderId)) {
+                mReminder = new Reminder();
+                mReminder.setTaskId(taskId);
+                mDate.setValue(new LocalDate());
+                mRepeatMode.setValue(new RepeatMode(REPEAT_PERIOD_NONE, 1));
+            } else if (!contentEquals(mReminderId, reminderId)) {
+                mReminderId = reminderId;
+                mRepository.get(mReminderId).subscribe(this);
+            }
         }
-        if (isEmpty(reminderId)) {
-            Reminder reminder = new Reminder();
-            reminder.setTaskId(taskId);
-            reminder.setDate(new LocalDate());
-            onNext(reminder);
-        } else if (!contentEquals(mReminderId, reminderId)) {
-            mReminderId = reminderId;
-            mRepository.get(mReminderId).subscribe(this);
-        }
-        return mReminderViewState;
     }
 
     @Override
-    public void onSubscribe(Subscription s) {
-        s.request(1);
+    public void onSubscribe(Disposable d) {
+
     }
 
     @Override
-    public void onNext(Reminder reminder) {
-        mReminderViewState.postValue(success(reminder));
+    public void onSuccess(Reminder reminder) {
+        LogUtil.debug("onSuccess: " + reminder);
+        mReminder = reminder;
         mDate.postValue(reminder.getDate());
         mTime.postValue(reminder.getTime());
+        mRepeatMode.setValue(new RepeatMode(reminder.getRepeatPeriod(), reminder.getRepeatCount()));
     }
 
     @Override
     public void onError(Throwable t) {
         t.printStackTrace();
-        mReminderViewState.postValue(error(t));
     }
-
-    @Override
-    public void onComplete() {}
 
     public LiveData<LocalDate> getDateObserver() {
         return mDate;
     }
 
     public void setDate(LocalDate date) {
-        Reminder reminder = getReminder();
-        if (reminder != null) {
-            reminder.setDate(date);
-            mDate.postValue(date);
-        }
+        mDate.setValue(date);
     }
 
     public LocalDate getCurrentDate() {
@@ -98,33 +122,43 @@ public class EditReminderViewModel extends ViewModel implements FlowableSubscrib
         return mTime;
     }
 
-    public void setTime(LocalTime time) {
-        Reminder reminder = getReminder();
-        if (reminder != null) {
-            reminder.setTime(time);
-            mTime.setValue(time);
+    public void setTime(@Nullable LocalTime time) {
+        if (time != null) {
+            time = time.withSecondOfMinute(0).withMillisOfSecond(0);
         }
+        mTime.setValue(time);
     }
 
     public LocalTime getCurrentTime() {
         return mTime.getValue();
     }
 
+    public LiveData<RepeatMode> getRepeatModeObserver() {
+        return mRepeatMode;
+    }
+
     public void save() {
-        Reminder reminder = getReminder();
-        if (reminder != null) {
-            if (reminder.hasId()) {
-                mRepository.update(reminder).subscribe(invalidateTasks());
-            } else {
-                mRepository.insert(reminder).subscribe(invalidateTasks());
-            }
+        mReminder.setTime(mTime.getValue());
+        mReminder.setDate(mDate.getValue());
+
+        RepeatMode repeatMode = mRepeatMode.getValue();
+        if (repeatMode != null) {
+            mReminder.setRepeatPeriod(repeatMode.period);
+            mReminder.setRepeatCount(repeatMode.count);
+        }
+
+        LogUtil.debug("save: " + mReminder);
+
+        if (mReminder.hasId()) {
+            mRepository.update(mReminder).subscribe(invalidateTasks());
+        } else {
+            mRepository.insert(mReminder).subscribe(invalidateTasks());
         }
     }
 
     public void delete() {
-        Reminder reminder = getReminder();
-        if (reminder != null) {
-            mRepository.delete(reminder).subscribe(invalidateTasks());
+        if (hasId()) {
+            mRepository.delete(mReminderId).subscribe(invalidateTasks());
         }
     }
 
@@ -146,16 +180,22 @@ public class EditReminderViewModel extends ViewModel implements FlowableSubscrib
         };
     }
 
-    private Reminder getReminder() {
-        EditReminderViewState state = mReminderViewState.getValue();
-        if (state != null && state.getState() == STATE_SUCCESS) {
-            return state.getData();
-        }
-        return null;
+    public boolean hasId() {
+        return notEmpty(mReminderId);
     }
 
-    public boolean hasId() {
-        Reminder reminder = getReminder();
-        return reminder != null && reminder.hasId();
+    public void setRepeatCount(int count) {
+        RepeatMode mode = mRepeatMode.getValue();
+        if (mode != null) {
+            mode.count = count;
+        }
     }
+
+    public void setRepeatPeriod(int period) {
+        RepeatMode mode = mRepeatMode.getValue();
+        if (mode != null) {
+            mode.period = period;
+        }
+    }
+
 }

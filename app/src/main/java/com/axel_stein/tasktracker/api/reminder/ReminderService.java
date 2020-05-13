@@ -1,33 +1,41 @@
 package com.axel_stein.tasktracker.api.reminder;
 
-import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
 
 import com.axel_stein.tasktracker.App;
+import com.axel_stein.tasktracker.api.model.Reminder;
+import com.axel_stein.tasktracker.api.model.Task;
+import com.axel_stein.tasktracker.api.repository.ReminderRepository;
+import com.axel_stein.tasktracker.api.repository.TaskRepository;
+import com.axel_stein.tasktracker.ui.IntentActionFactory;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.MutableDateTime;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
-public class ReminderService extends JobIntentService { // todo
-    public static final String ACTION_START = "com.axel_stein.tasktracker:ACTION_START";
-    public static final String ACTION_REBOOT = "com.axel_stein.tasktracker:ACTION_REBOOT";
+import static com.axel_stein.tasktracker.ui.IntentActionFactory.ACTION_REBOOT;
+import static com.axel_stein.tasktracker.ui.IntentActionFactory.ACTION_START;
 
-    public static void launch(Context context) {
-        Intent intent = new Intent(context, ReminderService.class);
-        intent.setAction(ACTION_START);
-        JobIntentService.enqueueWork(context, ReminderService.class, -1, intent);
-    }
-
-    public static void launch(Context context, Intent intent) {
-        JobIntentService.enqueueWork(context, ReminderService.class, -1, intent);
-    }
+public class ReminderService extends JobIntentService {
 
     @Inject
     ReminderScheduler mReminderScheduler;
+
+    @Inject
+    ReminderRepository mReminderRepository;
+
+    @Inject
+    TaskRepository mTaskRepository;
+
+    @Inject
+    IntentActionFactory mIntentActionFactory;
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
@@ -39,19 +47,19 @@ public class ReminderService extends JobIntentService { // todo
         switch (action) {
             case ACTION_START: {
                 MutableDateTime now = new MutableDateTime();
+                now.setSecondOfMinute(0);
                 now.setMillisOfSecond(0);
-                /*
-                List<Reminder> list = mGetReminderInteractor.queryDateTime(now.toDateTime());
+
+                List<Reminder> list = mReminderRepository.queryDateTime(new LocalDate(now), new LocalTime(now));
                 for (Reminder r : list) {
-                    Note note = mGetNoteInteractor.get(r.getNoteId(), false);
-                    sendBroadcast(ReminderReceiver.getShowNotificationIntent(this, note));
-                    if (r.getRepeatMode() != Reminder.REPEAT_MODE_NONE) {
+                    Task task = mTaskRepository.getSync(r.getTaskId());
+                    sendBroadcast(mIntentActionFactory.getShowNotificationIntent(task));
+                    if (r.getRepeatPeriod() != Reminder.REPEAT_PERIOD_NONE) {
                         r.shiftDateTime();
-                        mUpdateReminderInteractor.executeSync(r);
+                        mReminderRepository.update(r);
                         mReminderScheduler.schedule(r);
                     }
                 }
-                */
                 break;
             }
 

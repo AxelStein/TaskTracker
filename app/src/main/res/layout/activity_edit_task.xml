@@ -123,29 +123,13 @@
                     android:layout_height="1dp"
                     android:background="?android:attr/listDivider" />
 
-                <LinearLayout
+                <Spinner
+                    android:id="@+id/spinner_priority"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:scaleType="centerInside"
-                        android:tint="?attr/menuItemTintColor"
-                        android:src="@drawable/ic_low_priority_24px"
-                        tools:ignore="ContentDescription" />
-
-                    <Spinner
-                        android:id="@+id/spinner_priority"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:entries="@array/priority"
-                        android:minHeight="48dp"
-                        android:spinnerMode="dropdown" />
-
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:dropDownWidth="120dp"
+                    android:spinnerMode="dropdown" />
 
                 <View
                     android:layout_marginStart="72dp"
