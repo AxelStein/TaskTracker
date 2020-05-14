@@ -17,11 +17,12 @@ import static com.axel_stein.tasktracker.utils.FlagUtils.setFlag;
 import static java.util.Objects.requireNonNull;
 
 public class DateTimeUtil {
-    public static final int FLAG_DATE = 1;
-    public static final int FLAG_TIME = 2;
-    public static final int FLAG_YEAR = 4;
-    public static final int FLAG_TIME_24H = 8;
-    public static final int FLAG_ABBREV_MONTH = 16;
+    public static final int FLAG_DAY = 1;
+    public static final int FLAG_MONTH = 2;
+    public static final int FLAG_ABBREV_MONTH = 4;
+    public static final int FLAG_YEAR = 8;
+    public static final int FLAG_TIME = 16;
+    public static final int FLAG_TIME_24H = 32;
 
     private Locale mLocale;
     private boolean m24HourFormat;
@@ -31,10 +32,20 @@ public class DateTimeUtil {
         m24HourFormat = DateFormat.is24HourFormat(requireNonNull(context));
     }
 
+    public String formatMonth(LocalDate date) {
+        if (date == null) return "";
+        LocalDate today = new LocalDate();
+        int flags = FLAG_MONTH;
+        if (!today.year().equals(date.year())) {
+            flags = setFlag(flags, FLAG_YEAR);
+        }
+        return format(date.toDate(), flags);
+    }
+
     public String formatDate(LocalDate date) {
         if (date == null) return "";
         LocalDate today = new LocalDate();
-        int flags = FLAG_DATE | FLAG_ABBREV_MONTH;
+        int flags = FLAG_DAY | FLAG_ABBREV_MONTH;
         if (!today.year().equals(date.year())) {
             flags = setFlag(flags, FLAG_YEAR);
         }
@@ -51,27 +62,49 @@ public class DateTimeUtil {
     }
 
     public String formatDateTime(LocalDate date, LocalTime time) {
-        return formatDate(date).concat(formatTime(time));
+        return formatDate(date).concat(" ").concat(formatTime(time));
+    }
+
+    public String format(LocalDate date, int flags) {
+        return format(date.toDate(), flags);
     }
 
     public String format(Date date, int flags) {
         StringBuilder builder = new StringBuilder();
-        if (isFlagSet(flags, FLAG_DATE)) {
+        boolean space = false;
+        if (isFlagSet(flags, FLAG_DAY)) {
             builder.append("d");
-            if (isFlagSet(flags, FLAG_ABBREV_MONTH)) {
-                builder.append(" MMM");
-            } else {
-                builder.append(" MMMM");
+            space = true;
+        }
+        if (isFlagSet(flags, FLAG_ABBREV_MONTH)) {
+            if (space) {
+                builder.append(' ');
             }
-            if (isFlagSet(flags, FLAG_YEAR)) {
-                builder.append(" yyyy");
+            builder.append("MMM");
+            space = true;
+        }
+        if (isFlagSet(flags, FLAG_MONTH)) {
+            if (space) {
+                builder.append(' ');
             }
+            builder.append("MMMM");
+            space = true;
+        }
+        if (isFlagSet(flags, FLAG_YEAR)) {
+            if (space) {
+                builder.append(' ');
+            }
+            builder.append("yyyy");
+            space = true;
         }
         if (isFlagSet(flags, FLAG_TIME)) {
+            if (space) {
+                builder.append(' ');
+            }
             if (isFlagSet(flags, FLAG_TIME_24H)) {
-                builder.append(" H:mm");
+                builder.append("H:mm");
             } else {
-                builder.append(" h:mm aa");
+                builder.append("h:mm aa");
             }
         }
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(builder.toString(), mLocale);
