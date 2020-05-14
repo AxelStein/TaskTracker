@@ -36,4 +36,9 @@ public class TextUtil {
     public static int length(CharSequence text) {
         return text == null ? 0 : text.length();
     }
+
+    public static String capitalize(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+    }
+
 }
