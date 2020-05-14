@@ -116,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
                         .setCheckable(true)
                         .setIcon(R.drawable.ic_list_alt_24px)
                         .setIntent(new Intent().setAction(list.getId()))
+                        .setCounterView(this, R.layout.action_view_counter)
+                        .setCounter(list.getTaskCount())
                         .add(menu);
 
                 FragmentDestinationBuilder.from(mNavController)

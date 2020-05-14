@@ -3,6 +3,7 @@ package com.axel_stein.tasktracker.api.model;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -28,6 +29,9 @@ public class TaskList {
 
     @ColumnInfo
     private boolean closed;
+
+    @Ignore
+    private int taskCount;
 
     @NonNull
     public String getId() {
@@ -80,6 +84,14 @@ public class TaskList {
 
     public void setClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public int getTaskCount() {
+        return taskCount;
+    }
+
+    public void setTaskCount(int taskCount) {
+        this.taskCount = taskCount;
     }
 
     @Override

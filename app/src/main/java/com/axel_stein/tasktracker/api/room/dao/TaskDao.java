@@ -112,4 +112,7 @@ public abstract class TaskDao {
 
     @Query("SELECT * FROM tasks WHERE trashed = 0 AND completed = 0 ORDER BY priority DESC, title ASC")
     public abstract DataSource.Factory<Integer, Task> queryAll();
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE list_id = :listId AND trashed = 0 AND completed = 0")
+    public abstract int count(String listId);
 }

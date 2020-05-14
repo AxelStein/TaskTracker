@@ -139,6 +139,7 @@ public class TaskListRepository {
         return mDao.query().doOnNext(items -> {
             for (TaskList item : items) {
                 item.setFolderName(mFolderDao.getName(item.getFolderId()));
+                item.setTaskCount(mTaskDao.count(item.getId()));
             }
         }).observeOn(AndroidSchedulers.mainThread());
     }

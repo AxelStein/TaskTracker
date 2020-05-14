@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
@@ -257,6 +258,8 @@ public class MenuUtil {
         private boolean checkable;
         private boolean checked;
         private Intent intent;
+        private TextView counterView;
+        private int counter;
 
         public MenuItemBuilder setId(int id) {
             this.id = id;
@@ -303,6 +306,16 @@ public class MenuUtil {
             return this;
         }
 
+        public MenuItemBuilder setCounterView(Context context, int layoutRes) {
+            this.counterView = (TextView) View.inflate(context, layoutRes, null);
+            return this;
+        }
+
+        public MenuItemBuilder setCounter(int counter) {
+            this.counter = counter;
+            return this;
+        }
+
         public void add(Menu menu) {
             MenuItem item;
             if (titleRes != 0) {
@@ -319,6 +332,10 @@ public class MenuUtil {
             }
             if (icon != 0) {
                 item.setIcon(icon);
+            }
+            if (counterView != null) {
+                counterView.setText(counter != 0 ? String.valueOf(counter) : null);
+                item.setActionView(counterView);
             }
         }
     }
