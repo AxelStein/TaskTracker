@@ -3,6 +3,7 @@
     <attr name="reminderTint" format="color|reference"/>
     <attr name="menuItemTintColor" format="color|reference"/>
     <attr name="taskItemBackgroundColor" format="color|reference"/>
+    <attr name="navItemTextColor" format="color|reference"/>
     <declare-styleable name="IconTextView">
         <attr name="iconTop" format="reference"/>
         <attr name="iconTopTint" format="reference|color"/>

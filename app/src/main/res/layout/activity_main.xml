@@ -64,8 +64,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:itemBackground="@drawable/nav_view_item_background"
-        app:itemTextColor="@drawable/nav_view_item_textcolor"
-        app:itemIconTint="@drawable/nav_view_item_textcolor"
+        app:itemTextColor="?attr/navItemTextColor"
+        app:itemIconTint="?attr/navItemTextColor"
         app:menu="@menu/main_drawer" />
 
     <!--<include
