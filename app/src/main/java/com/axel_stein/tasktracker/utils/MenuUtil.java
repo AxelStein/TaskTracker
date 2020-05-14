@@ -231,6 +231,18 @@ public class MenuUtil {
         return null;
     }
 
+    public static MenuItem getCheckedMenuItem(Menu menu) {
+        if (menu != null) {
+            ArrayList<MenuItem> items = getVisibleMenuItems(menu);
+            for (MenuItem item : items) {
+                if (item.isChecked()) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
+
     public static class MenuItemBuilder {
         public static MenuItemBuilder from(int id) {
             return new MenuItemBuilder().setId(id);

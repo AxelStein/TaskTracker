@@ -34,11 +34,13 @@ import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.ViewUtil;
 
 public class TasksFragment extends Fragment implements SelectListDialog.OnListSelectedListener {
-    private static final String BUNDLE_VIEW_MODEL = "BUNDLE_VIEW_MODEL";
+    public static final String BUNDLE_VIEW_MODEL = "BUNDLE_VIEW_MODEL";
+    public static final String BUNDLE_LIST_ID = "BUNDLE_LIST_ID";
+
     private static final int VIEW_MODEL_INBOX = 0;
     private static final int VIEW_MODEL_COMPLETED = 1;
     private static final int VIEW_MODEL_TRASHED = 2;
-    private static final int VIEW_MODEL_LIST = 3;
+    public static final int VIEW_MODEL_LIST = 3;
     private static final int VIEW_MODEL_SEARCH = 4;
     private static final int VIEW_MODEL_TODAY = 5;
     private static final int VIEW_MODEL_WEEK = 6;
@@ -73,7 +75,9 @@ public class TasksFragment extends Fragment implements SelectListDialog.OnListSe
                 break;
 
             case VIEW_MODEL_LIST:
-                mViewModel = new ViewModelProvider(requireActivity()).get(ListViewModel.class);
+                ListViewModel list = new ViewModelProvider(requireActivity()).get(ListViewModel.class);
+                list.setListId(args.getString(BUNDLE_LIST_ID));
+                mViewModel = list;
                 break;
 
             case VIEW_MODEL_SEARCH:

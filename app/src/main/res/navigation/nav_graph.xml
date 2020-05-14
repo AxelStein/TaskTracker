@@ -64,6 +64,7 @@
             android:defaultValue="2" />
     </fragment>
 
+    <!--
     <fragment
         android:id="@+id/fragment_list"
         android:name="com.axel_stein.tasktracker.ui.task_list.TasksFragment">
@@ -72,6 +73,7 @@
             app:argType="integer"
             android:defaultValue="3" />
     </fragment>
+    -->
 
     <fragment
         android:id="@+id/fragment_search"
