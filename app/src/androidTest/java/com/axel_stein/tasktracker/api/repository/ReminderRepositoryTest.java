@@ -4,7 +4,6 @@ import com.axel_stein.tasktracker.api.exception.ReminderNotFoundException;
 import com.axel_stein.tasktracker.api.exception.TaskNotFoundException;
 import com.axel_stein.tasktracker.api.model.Reminder;
 
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class ReminderRepositoryTest extends RepositoryTest {
     @Test
     public void testInsert() {
         Reminder reminder = new Reminder();
-        reminder.setDate(new DateTime());
+        reminder.setDate(new LocalDate());
         reminder.setTaskId(insertTestTask().getId());
 
         mReminderRepository.insert(reminder).test().assertComplete();
@@ -29,7 +28,7 @@ public class ReminderRepositoryTest extends RepositoryTest {
         mReminderRepository.insert(new Reminder()).test().assertError(IllegalArgumentException.class);
 
         Reminder reminder = new Reminder();
-        reminder.setDate(new DateTime());
+        reminder.setDate(new LocalDate());
         reminder.setTaskId("id");
         mReminderRepository.insert(reminder).test().assertError(TaskNotFoundException.class);
 
@@ -54,11 +53,11 @@ public class ReminderRepositoryTest extends RepositoryTest {
 
         // test id
         Reminder reminder = new Reminder();
-        reminder.setDate(new DateTime());
+        reminder.setDate(new LocalDate());
         mReminderRepository.update(reminder).test().assertError(IllegalArgumentException.class);
 
         reminder = new Reminder();
-        reminder.setDate(new DateTime());
+        reminder.setDate(new LocalDate());
         reminder.setId("id");
         reminder.setTaskId(insertTestTask().getId());
         mReminderRepository.update(reminder).test().assertError(ReminderNotFoundException.class);
