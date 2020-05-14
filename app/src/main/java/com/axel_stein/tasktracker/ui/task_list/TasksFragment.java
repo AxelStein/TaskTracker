@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.axel_stein.tasktracker.R;
-import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.ui.dialog.SelectListDialog;
 import com.axel_stein.tasktracker.ui.task_list.view_model.AllViewModel;
@@ -33,8 +32,6 @@ import com.axel_stein.tasktracker.ui.task_list.view_model.TrashedViewModel;
 import com.axel_stein.tasktracker.ui.task_list.view_model.WeekViewModel;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.axel_stein.tasktracker.utils.ViewUtil;
-
-import org.greenrobot.eventbus.Subscribe;
 
 public class TasksFragment extends Fragment implements SelectListDialog.OnListSelectedListener {
     private static final String BUNDLE_VIEW_MODEL = "BUNDLE_VIEW_MODEL";
@@ -58,7 +55,6 @@ public class TasksFragment extends Fragment implements SelectListDialog.OnListSe
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        Events.subscribe(this);
 
         ViewModelProvider provider = new ViewModelProvider(this);
         Bundle args = requireArguments();
@@ -112,13 +108,6 @@ public class TasksFragment extends Fragment implements SelectListDialog.OnListSe
         recyclerView.setAdapter(mListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return view;
-    }
-
-    @Subscribe
-    public void invalidate(Events.InvalidateTasks e) {
-        if (mListAdapter != null) {
-            mListAdapter.submitList(null);
-        }
     }
 
     @Override

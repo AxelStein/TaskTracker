@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.axel_stein.tasktracker.App;
-import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.Task;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.repository.TaskRepository;
@@ -85,7 +84,7 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
         Task task = getTask();
         if (task != null && !task.isTrashed() && !contentEquals(title, task.getTitle())) {
             task.setTitle(title);
-            mRepository.setTitle(task.getId(), title).subscribe(invalidateTasks());
+            mRepository.setTitle(task.getId(), title).subscribe();
         }
     }
 
@@ -135,14 +134,14 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
     public void setPriority(int priority) {
         Task task = getTask();
         if (task != null && !task.isTrashed() && task.getPriority() != priority) {
-            mRepository.setPriority(task, priority).subscribe(invalidateTasks());
+            mRepository.setPriority(task, priority).subscribe();
         }
     }
 
     public void duplicate() {
         Task task = getTask();
         if (task != null && !task.isTrashed()) {
-            mRepository.duplicate(task).subscribe(invalidateTasks());
+            mRepository.duplicate(task).subscribe();
         }
     }
 
@@ -155,7 +154,6 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
 
                 @Override
                 public void onComplete() {
-                    Events.invalidateTasks();
                     loadData(task.getId(), null);
                 }
 
@@ -165,23 +163,6 @@ public class EditTaskViewModel extends ViewModel implements SingleObserver<Task>
                 }
             });
         }
-    }
-
-    private static CompletableObserver invalidateTasks() {
-        return new CompletableObserver() {
-            @Override
-            public void onSubscribe(Disposable d) {}
-
-            @Override
-            public void onComplete() {
-                Events.invalidateTasks();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
-            }
-        };
     }
 
 }

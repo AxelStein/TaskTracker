@@ -12,7 +12,6 @@ import org.joda.time.DateTime;
 
 import java.io.Serializable;
 
-import static com.axel_stein.tasktracker.utils.TextUtil.contentEquals;
 import static com.axel_stein.tasktracker.utils.TextUtil.notEmpty;
 
 @Entity(tableName = "tasks")
@@ -221,7 +220,10 @@ public class Task implements Cloneable, Serializable {
             builder.append(priority, t.priority);
             builder.append(listId, t.listId);
             builder.append(reminderId, t.reminderId);
-            return contentEquals(id, t.id);
+
+            builder.append(reminderFormatted, t.reminderFormatted);
+            builder.append(reminderPassed, t.reminderPassed);
+            return builder.areEqual();
         }
         return false;
     }

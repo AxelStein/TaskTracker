@@ -15,10 +15,6 @@ public class Events {
         getBus().unregister(o);
     }
 
-    public static void invalidateTasks() {
-        getBus().post(new InvalidateTasks());
-    }
-
     public static void invalidateEditTask() {
         getBus().post(new InvalidateEditTask());
     }
@@ -26,8 +22,6 @@ public class Events {
     private static EventBus getBus() {
         return EventBus.getDefault();
     }
-
-    public static class InvalidateTasks {}
 
     public static class InvalidateEditTask {}
 

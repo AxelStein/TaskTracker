@@ -189,7 +189,6 @@ public class EditReminderViewModel extends ViewModel implements SingleObserver<R
             @Override
             public void onComplete() {
                 Events.invalidateEditTask();
-                Events.invalidateTasks();
             }
 
             @Override
