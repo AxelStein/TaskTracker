@@ -18,11 +18,11 @@ import static java.util.Objects.requireNonNull;
 
 public class DateTimeUtil {
     public static final int FLAG_DAY = 1;
-    public static final int FLAG_MONTH = 2;
-    public static final int FLAG_ABBREV_MONTH = 4;
-    public static final int FLAG_YEAR = 8;
-    public static final int FLAG_TIME = 16;
-    public static final int FLAG_TIME_24H = 32;
+    public static final int FLAG_MONTH = 1 << 2;
+    public static final int FLAG_ABBREV_MONTH = 1 << 3;
+    public static final int FLAG_YEAR = 1 << 4;
+    public static final int FLAG_TIME = 1 << 5;
+    public static final int FLAG_TIME_24H = 1 << 6;
 
     private Locale mLocale;
     private boolean m24HourFormat;
