@@ -115,4 +115,25 @@ public abstract class TaskDao {
 
     @Query("SELECT COUNT(*) FROM tasks WHERE list_id = :listId AND trashed = 0 AND completed = 0")
     public abstract int count(String listId);
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE trashed = 0 AND completed = 0")
+    public abstract int countAll();
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE (list_id IS NULL OR list_id = '') AND trashed = 0 AND completed = 0")
+    public abstract int countInbox();
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE trashed = 0 AND completed = 1")
+    public abstract int countCompleted();
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE trashed = 1")
+    public abstract int countTrashed();
+
+    @Query("SELECT COUNT(*) FROM tasks INNER JOIN reminders ON reminders.task_id = tasks.id " +
+            "WHERE reminders.date = date('now') AND completed = 0 AND trashed = 0")
+    public abstract int countToday();
+
+    @Query("SELECT COUNT(*) FROM tasks INNER JOIN reminders ON reminders.task_id = tasks.id " +
+            "WHERE reminders.date BETWEEN date('now') AND date('now', '+6 day') AND completed = 0 AND trashed = 0")
+    public abstract int countWeek();
+
 }

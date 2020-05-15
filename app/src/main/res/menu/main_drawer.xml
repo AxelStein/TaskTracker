@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group
         android:checkableBehavior="single">
@@ -7,32 +8,38 @@
         <item
             android:id="@+id/fragment_all"
             android:icon="@drawable/ic_all_inbox_24px"
+            app:actionLayout="@layout/action_view_counter"
             android:title="@string/action_all" />
 
         <item
             android:id="@+id/fragment_today"
             android:icon="@drawable/ic_today_24px"
+            app:actionLayout="@layout/action_view_counter"
             android:title="@string/action_today" />
 
         <item
             android:id="@+id/fragment_week"
             android:icon="@drawable/ic_next_week_24px"
+            app:actionLayout="@layout/action_view_counter"
             android:title="@string/action_week" />
 
         <item
             android:id="@+id/fragment_inbox"
             android:checked="true"
             android:icon="@drawable/ic_inbox_white_24dp"
+            app:actionLayout="@layout/action_view_counter"
             android:title="@string/action_inbox" />
 
         <item
             android:id="@+id/fragment_completed"
             android:icon="@drawable/ic_check_circle_outline_24px"
+            app:actionLayout="@layout/action_view_counter"
             android:title="@string/action_completed" />
 
         <item
             android:id="@+id/fragment_trash"
             android:icon="@drawable/ic_delete_outline_24px"
+            app:actionLayout="@layout/action_view_counter"
             android:title="@string/action_trash" />
 
     </group>

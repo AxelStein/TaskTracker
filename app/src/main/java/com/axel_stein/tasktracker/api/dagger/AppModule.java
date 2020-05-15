@@ -6,6 +6,7 @@ import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.api.reminder.AndroidNotificationTray;
 import com.axel_stein.tasktracker.api.reminder.PendingIntentFactory;
 import com.axel_stein.tasktracker.api.reminder.ReminderScheduler;
+import com.axel_stein.tasktracker.api.repository.MainMenuRepository;
 import com.axel_stein.tasktracker.api.repository.TaskListRepository;
 import com.axel_stein.tasktracker.api.repository.FolderRepository;
 import com.axel_stein.tasktracker.api.repository.ReminderRepository;
@@ -87,6 +88,11 @@ public class AppModule {
     @Singleton
     DateTimeUtil provideDateTimeUtil(App app) {
         return new DateTimeUtil(app);
+    }
+
+    @Provides
+    MainMenuRepository provideMainMenuRepository(App app, AppDatabase db) {
+        return new MainMenuRepository(app, db.getTaskDao(), db.getListDao());
     }
 
 }

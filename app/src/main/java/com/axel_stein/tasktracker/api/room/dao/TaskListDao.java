@@ -47,6 +47,9 @@ public interface TaskListDao {
     @Query("SELECT * FROM task_lists ORDER BY name")
     Flowable<List<TaskList>> query();
 
+    @Query("SELECT * FROM task_lists ORDER BY name")
+    List<TaskList> querySync();
+
     @Query("SELECT * FROM task_lists WHERE folder_id = :folderId ORDER BY name")
     List<TaskList> query(String folderId);
 
