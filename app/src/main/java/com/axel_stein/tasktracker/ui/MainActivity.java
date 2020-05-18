@@ -18,6 +18,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.axel_stein.tasktracker.App;
 import com.axel_stein.tasktracker.R;
+import com.axel_stein.tasktracker.api.events.Events;
 import com.axel_stein.tasktracker.api.model.TaskList;
 import com.axel_stein.tasktracker.api.repository.MainMenuRepository;
 import com.axel_stein.tasktracker.api.repository.TaskListRepository;
@@ -28,6 +29,8 @@ import com.axel_stein.tasktracker.utils.FragmentDestinationBuilder;
 import com.axel_stein.tasktracker.utils.MenuUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.getAppComponent().inject(this);
+        Events.subscribe(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -97,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         mDisposable = new CompositeDisposable();
         mDisposable.add(mListRepository.query().subscribe(lists -> {
-            mMenuRepository.inflateMenu(mNavigationView.getMenu()).subscribe();
+            mMenuRepository.inflateMenu(mNavigationView.getMenu(), mCheckedMenuItem);
 
             NavGraph graph = mNavController.getNavInflater().inflate(R.navigation.nav_graph);
 
@@ -130,8 +134,14 @@ public class MainActivity extends AppCompatActivity {
         }, Throwable::printStackTrace));
     }
 
+    @Subscribe
+    public void invalidateMenu(Events.InvalidateMenu e) {
+
+    }
+
     @Override
     protected void onDestroy() {
+        Events.unsubscribe(this);
         mDisposable.clear();
         super.onDestroy();
     }
