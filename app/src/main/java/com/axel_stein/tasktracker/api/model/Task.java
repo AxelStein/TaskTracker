@@ -228,4 +228,8 @@ public class Task implements Cloneable, Serializable {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return id;
+    }
 }
